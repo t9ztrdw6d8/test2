@@ -1,0 +1,24 @@
+--ENG--
+Error 23:
+The left tail light is broken.
+This error can occur when:
+• The left tail light is broken.
+• The connection to the left tail light is broken
+• LFTRED is read incorrect (train sensor or PLC fault).
+• RHTRED is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 23:
+Het linker achterlicht is kapot.
+Deze fout kan optreden wanneer:
+• Het linker achterlicht kapot is.
+• het contact met het linker achterlicht is onderbroken.
+• LFTRED wordt onjuist uitgelezen (treinsensor of PLC-fout).
+• RHTRED wordt onjuist uitgelezen (treinsensor of PLC-fout).
+--FR--
+Erreur 23:
+Le pharearrière gauche est cassé.
+Cette erreur peut se produire lorsque:
+• Le phare arrière gauche est défectueux.
+• La connexion avec le phare arrière gauche est interrompue
+• LFTRED est mal lu (défaut du capteur de train ou PLC).
+• RHTRED est lu incorrect (défaut du capteur de train ou PLC).

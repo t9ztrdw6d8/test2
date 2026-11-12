@@ -1,0 +1,27 @@
+--ENG--
+Error 12:
+Pfront should rise or fall to Pideal in a given timespan if you try to inflate or deflate the rubber front. If Pfront does not reach Pideal in this timespan the rubber front pressure is incorrect.
+This error can occur when:
+• Pideal is incorrect (check error 11).
+• There is a hole in the rubber.
+• Pfront is read incorrect (train sensor or PLC fault).
+
+* You may ignore this error when error 11 occurred.
+--NL--
+Fout 12:
+Pfront moet binnen een bepaalde tijd naar Pideal stijgen of dalen als u het rubberen front probeert te inflaten of deflaten. Als Pfront Pideal niet bereikt is in deze tijdspanne dan is de druk van de rubbere band niet correct.
+Deze fout kan optreden wanneer:
+• Pideal is incorrect (check error 11).
+• Er zit een gat in het rubber.
+• Pfront wordt niet goed uitgelezen (treinsensor of PLC storing).
+
+* U mag deze fout negeren wanneer fout 11 is opgetreden.
+--FR--
+Erreur 12:
+la valeur du Pfront devrait monter ou descendre jusqu'à Pideal dans un laps de temps donné si vous essayez de gonfle au dégonflé. Si Pfront n'atteint pas Pideal dans ce laps de temps, la pression avant du caoutchouc est incorrecte.
+Cette erreur peut se reproduire lorsque:
+• Pideal est incorrect (défaut du capteur de train ou PLC).
+• Il y a un trou dans le caoutchouc.
+• Pfront est lu incorrect (défaillance du capteur de train ou PLC).
+
+* Vous pouvez ignorer cette erreur lorsque l'erreur 11 s'est produite.

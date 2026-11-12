@@ -1,0 +1,24 @@
+--ENG--
+Error 71:
+The PLC detects that there is an invalid configuration of locking bolts to lock the front door. The PLC thinks the left locking bolt is in the in and out possition at the same time. 
+It is most likly that:
+lftout is read incorrectly, this is moslty a train sensor fault, but in rare ocasions this can also be a PLC fault. 
+This error can occur when:
+• lftout is read incorrect (train sensor or PLC fault).
+• lftin is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 71:
+De PLC detecteert dat er een ongeldige configuratie is van de vergrendelingsbouten om de voordeur te vergrendelen. De PLC denkt dat de linker vergrendeling tegelijkertijd in de in- en uit-stand staat.
+Het is zeer waarschijnlijk dat:
+lftout word verkeerd uitgelezen, dit is meestal een treinsensorfout, maar in zeldzame gevallen kan dit ook een PLC-fout zijn.
+Deze fout kan optreden wanneer:
+• lftout wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• lftin wordt verkeerd uitgelezen (treinsensor of PLC storing).
+--FR--
+Erreur 71:
+L'automate détecte qu'il existe une configuration invalide du boulon de verrouillage de la porte d'entrée. Le PLC pense que le verrouillage gauche est dans les deux position.
+ç'est probablement ce si:
+lftout est mal lu, il s'agit principalement d'un défaut de capteur de train, mais dans de rares cas, il peut également s'agir d'un défaut PLC.
+Cette erreur peut se produire lorsque:
+• lftout est lu incorrect (défaut du capteur de train ou PLC).
+• lftin est lu incorrect (défaut du capteur de train ou PLC).

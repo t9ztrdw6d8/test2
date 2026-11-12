@@ -1,0 +1,18 @@
+--ENG--
+Error 41:
+NTNC and NTC are both in the true state, meaning the train thinks it is connected with an other train, while also signalling its not.
+This error can occur when:
+• NTNC is read incorrect (train sensor or PLC fault).
+• NTC is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 41:
+NTNC en NTC zijn beide in de aan status, wat betekent dat de trein denkt dat hij verbonden is met een andere trein, terwijl hij ook aangeeft dat dit niet het geval is.
+Deze fout kan optreden wanneer:
+• NTNC wordt onjuist uitgelezen (treinsensor of PLC-fout).
+• NTC wordt onjuist uitgelezen (treinsensor of PLC-fout).
+--FR--
+Erreur 41:
+NTNC et NTC sont tous les deux dans l'état réel, ce qui signifie que le train pense qu'il est connecté à un autre train, tout en signalant qu'il ne l'est pas.
+Cette erreur peut se produire lorsque:
+• NTNC est lu incorrect (défaut du capteur de train ou PLC).
+• NTC est lu incorrect (défaut du capteur de train ou PLC).

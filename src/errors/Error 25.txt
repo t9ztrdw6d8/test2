@@ -1,0 +1,15 @@
+--ENG--
+Error 25:
+Only the top light is burning.
+This error can only occur when:
+• TOPWHT is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 25:
+Alleen het bovenste licht brandt.
+Deze fout kan alleen optreden als:
+• TOPWHT wordt niet goed uitgelezen (treinsensor of PLC storing).
+--FR--
+Erreur 25:
+Seule le phare supérieur est allumer.
+Cette erreur ne peut se produire que lorsque:
+• TOPWHT est lu incorrect (défaut du capteur de train ou PLC).

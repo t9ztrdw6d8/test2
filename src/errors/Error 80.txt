@@ -1,0 +1,6 @@
+--ENG--
+Global status light error
+--NL--
+Globale statuslamp fout
+--FR--
+Erreur de voyant d'état global

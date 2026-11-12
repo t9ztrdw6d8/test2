@@ -1,0 +1,24 @@
+--ENG--
+Error 24:
+The right tail light is broken.
+This error can occur when:
+• The right tail light is broken.
+• The connection to the right tail light is broken
+• RHTRED is read incorrect (train sensor or PLC fault).
+• LFTRED is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 24:
+Het rechter achterlicht is kapot.
+Deze fout kan optreden wanneer:
+• Het rechter achterlicht is kapot.
+• De verbinding met het rechter achterlicht is onderbroken.
+• RHTRED wordt onjuist uitgelezen (treinsensor of PLC-fout).
+• LFTRED wordt onjuist uitgelezen (treinsensor of PLC-fout).
+--FR--
+Erreur 24:
+Le phare arrière droit est cassé.
+Cette erreur peut se produire lorsque:
+• Le phare arrière droit est défectueux.
+• La connexion au phare arrière droit est interrompue
+• RHTRED est lu incorrect (défaut du capteur de train ou PLC).
+• LFTRED est lu incorrect (défaut du capteur de train ou PLC).

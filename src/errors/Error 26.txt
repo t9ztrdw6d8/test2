@@ -1,0 +1,27 @@
+--ENG--
+Error 26:
+This is a global lights error, meaning the configuation of lights is invalide.
+Meaning a front light is on while a tail lights is also on.
+This error can occur when:
+• A light shows on that shouldn't be (train sensor or PLC fault).
+
+* If this error occurs means that there are more than 2 lights errors
+* Switching the lighswitch may result in an other error that gives more specific information
+--NL--
+Fout 26:
+Dit is een globale lichtfout, wat betekent dat de configuratie van de lichten ongeldig is.
+Dit betekent dat een voorlicht aan staat terwijl een achterlicht ook aan staat.
+Deze fout kan optreden wanneer:
+• Er brandt een lamp dat uit zou moeten staan (treinsensor of PLC storing).
+
+* Als deze fout optreedt, betekent dit dat er meer dan 2 lichtfouten zijn
+* het omschakelen van de lichtschakelaar kan resulteren in een andere fout die meer specifieke informatie geeft
+--FR--
+Erreur 26:
+Il s'agit d'une erreur d'éclairage globale, ce qui signifie que la configuration des lumières n'est pas valide.
+Cela signifie qu'un feu avant est allumé alors qu'un feu arrière est également allumé.
+Cette erreur peut se produire lorsque:
+• Un voyant est allumé qui devrait être éteint (défaut capteur train ou PLC).
+
+* Si cette erreur se produit, cela signifie qu'il y a plus de 2 erreurs de voyants
+* Basculer l'interrupteur d'éclairage peut entraîner une autre erreur donnant des informations plus spécifiques

@@ -1,0 +1,24 @@
+--ENG--
+Error 73:
+The PLC detects that there is an invalide configuration of locking bolts to lock the front door. The PLC thinks the right locking bolt is in the in and out possition at the same time. 
+It is most likly that:
+rhtout is read incorrectly, this is moslty a train sensor fault, but in rare ocasions this can also be a PLC fault. 
+This error can occur when:
+• rhtout is read incorrect (train sensor or PLC fault).
+• rhtin is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 73:
+De PLC detecteert dat er een ongeldige configuratie is van de vergrendelingsbouten om de voordeur te vergrendelen. De PLC denkt dat de rechtse vergrendeling tegelijkertijd in de in- en uit-stand staat.
+Het is zeer waarschijnlijk dat:
+rhtout verkeerd wordt uitgelezen, dit is meestal een treinsensorfout, maar in zeldzame gevallen kan dit ook een PLC-fout zijn.
+Deze fout kan optreden wanneer:
+• rhtout wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• rhtin wordt verkeerd uitgelezen (treinsensor of PLC storing).
+--FR--
+Erreur 73:
+Le PLC détecte qu'il existe une configuration invalide des du boulon de verrouillage pour verrouiller la porte d'entrée. Le PLC pense que le verrou de droit est dans les deux position.
+Il est fort probable que :
+rhtout est mal lu, il s'agit principalement d'un défaut de capteur de train, mais dans de rares cas, il peut également s'agir d'un défaut le PLC.
+Cette erreur peut se produire lorsque:
+• rhtout est lu incorrect (défaut du capteur de train ou PLC).
+• rhtin est lu incorrect (défaut du capteur de train ou PLC).

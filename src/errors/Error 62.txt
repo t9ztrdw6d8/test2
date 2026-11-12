@@ -1,0 +1,18 @@
+--ENG--
+Error 62:
+The PLC detects your key in the closing and opening position at the same time. This is related to a sensor in the keyhole that is possibly malfunctioning.
+This error can occur when:
+• Closed is read incorrect (train sensor or PLC fault).
+• Opening is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 62:
+De PLC detecteert uw sleutel tegelijkertijd in de sluit- en openingspositie. Dit heeft te maken met een sensor in het sleutelgat die mogelijk niet goed werkt.
+Deze fout kan optreden wanneer:
+• Gesloten wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• Opening wordt verkeerd uitgelezen (treinsensor of PLC storing).
+--FR--
+Erreur 62:
+Le PLC détecte votre clé dans le positionnement de fermeture et d'ouverture en même temps. Ceci est lié à un capteur dans le trou de la serrure qui fonctionne peut-être mal.
+Cette erreur peut se produire lorsque:
+• Fermé est lu incorrect (défaut du capteur de train ou PLC).
+• L'ouverture est lu incorrect (défaut du capteur de train ou PLC).

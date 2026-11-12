@@ -1,0 +1,27 @@
+--ENG--
+Error 84:
+RBNCF (Configuration Fault) statuslamp is incorrect.
+This error can occur when:
+• RBNCF is read incorrect (train sensor or PLC fault).
+• NFOT is read incorrect (train sensor or PLC fault).
+• NBOT is read incorrect (train sensor or PLC fault).
+• NTC is read incorrect (train sensor or PLC fault).
+• NTNC is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 84:
+RBNCF (Configuration Fault) statuslamp is onjuist.
+Deze fout kan optreden wanneer:
+• RBNCF wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• NFOT wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• NBOT wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• NTC wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• NTNC wordt verkeerd uitgelezen (treinsensor of PLC storing).
+--FR--
+Erreur 84:
+Le voyant d'état RBNCF (Configuration Fault) est incorrect.
+Cette erreur peut se produire lorsque:
+• RBNCF est lu incorrect (défaut du capteur de train ou PLC).
+• NBOT est lu incorrect (défaut du capteur de train ou PLC).
+• NFOT est lu incorrect (défaut du capteur de train ou PLC).
+• NTC est lu incorrect (défaut du capteur de train ou PLC).
+• NTNC est lu incorrect (défaut du capteur de train ou PLC).

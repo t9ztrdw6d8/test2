@@ -1,0 +1,15 @@
+--ENG--
+Error 83:
+RBNFLD (Front or Rail Light Defect) statuslamp is incorrect.
+This error can occur when:
+• RBNFLD is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 83:
+RBNFLD (Front or Rail Light Defect) statuslamp is onjuist.
+Deze fout kan optreden wanneer:
+• RBNFLD wordt verkeerd uitgelezen (treinsensor of PLC storing).
+--FR--
+Erreur 83:
+Le voyant d'état RBNFLD (Front or Rail Light Defect) est incorrect.
+Cette erreur peut se produire lorsque:
+• RBNFLD est lu incorrect (défaut du capteur de train ou PLC).

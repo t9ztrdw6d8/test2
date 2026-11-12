@@ -1,0 +1,18 @@
+--ENG--
+Error 51:
+The PLC think your trying to inflate and deflate the seal around the door at the same time.
+This error can occur when:
+• infseal is read incorrect (train sensor or PLC fault).
+• defseal is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 51:
+De PLC denkt dat u tegelijkertijd de afdichting rond de deur probeert op te blazen en te laten leeglopen.
+Deze fout kan optreden wanneer:
+• infseal wordt onjuist uitgelezen (treinsensor of PLC-fout).
+• defseal wordt onjuist uitgelezen (treinsensor of PLC-fout).
+--FR--
+Erreur 51:
+Le PLC pense que vous essayez de gonfler et de dégonfler le joint autour de la porte en même temps.
+Cette erreur peut se produire lorsque:
+• infseal est lu incorrect (défaut du capteur de train ou PLC).
+• defseal est lu incorrect (défaut du capteur de train ou PLC).

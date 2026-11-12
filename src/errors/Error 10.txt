@@ -1,0 +1,6 @@
+--ENG--
+These are the front rubber pressure related errors.
+--NL--
+Dit zijn de fouten gerelateerde aan de voorste drukband.
+--FR--
+Ce sont les erreurs liées à la pression du caoutchouc avant.

@@ -1,0 +1,24 @@
+--ENG--
+Error 70:
+This is the global locking bolt error.
+This error can occur when:
+• lftout is read incorrect (train sensor or PLC fault).
+• lftin is read incorrect (train sensor or PLC fault).
+• rhtout is read incorrect (train sensor or PLC fault).
+• rhtin is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 70:
+Dit is de globale vergrendelingsboutfout.
+Deze fout kan optreden wanneer:
+• lftout wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• lftin wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• rhtout wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• rhtin wordt verkeerd uitgelezen (treinsensor of PLC storing).
+--FR--
+Erreur 70:
+Il s'agit de l'erreur globale du boulon de verrouillage.
+Cette erreur peut se produire lorsque:
+• lftout est lu incorrect (défaut du capteur de train ou PLC).
+• lftin est lu incorrect (défaut du capteur de train ou PLC).
+• rhtout est lu incorrect (défaut capteur train PLC).
+• rhtin est lu incorrect (défaut du capteur de train ou PLC).

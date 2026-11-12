@@ -1,0 +1,24 @@
+--ENG--
+Error 13:
+The PLC thinks you're trying to inflate and deflate the rubber front at the same time.
+This error can occur when:
+• infseal is read incorrect (train sensor or PLC fault).
+• defseal is read incorrect (train sensor or PLC fault).
+
+*RBNPD (no pressure sensor defect) can tell you more about this error.
+--NL--
+Fout 13:
+De PLC denkt dat u tegelijkertijd de rubberen front probeert op te blazen en leeg te laten lopen.
+Deze fout kan optreden wanneer:
+• infseal wordt onjuist uitgelezen (treinsensor of PLC-fout).
+• defseal wordt onjuist uitgelezen (treinsensor of PLC-fout).
+
+*RBNPD (geen druksensor defect) kan u meer vertellen over deze fout.
+--FR--
+Erreur 13 :
+Le PLC pense que vous essayez de gonfler et de dégonfler le caoutchouc avant en même temps.
+Cette erreur peut se produire lorsque :
+• infseal est mal lu (défaut du capteur de train ou PLC).
+• defseal est mal lu (défaut du capteur de train ou PLC).
+
+*RBNPD (aucun défaut de capteur de pression) peut vous en dire plus sur cette erreur.

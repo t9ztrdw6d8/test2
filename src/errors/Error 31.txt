@@ -1,0 +1,21 @@
+--ENG--
+Error 31:
+Heating switch error, this means that the switch has 2 states at the same time.
+Meaning ACTBST and ACTNORM is both true.
+This error can occur when:
+• ACTBST or ACTNORM is read incorrect (train sensor or PLC fault).
+• The heatingswitch is broken.
+--NL--
+Fout 31:
+Storing verwarmingsschakelaar, dit betekent dat de schakelaar 2 standen tegelijkertijd heeft.
+Betekenis ACTBST en ACTNORM zijn beide als true.
+Deze fout kan optreden wanneer:
+• ACTBST of ACTNORM wordt onjuist uitgelezen (treinsensor of PLC-fout).
+• De verwarmingsschakelaar is kapot.
+--FR--
+Erreur 31:
+Erreur d'interrupteur du chauffage, cela signifie que l'interrupteur a 2 position en même temps.
+Cela signifie que ACTBST et ACTNORM sont tous les deux vrais.
+Cette erreur peut se produire lorsque:
+• ACTBST ou ACTNORM est lu incorrect (défaut du capteur de train ou PLC).
+• L'interrupteur du chauffage est cassé.

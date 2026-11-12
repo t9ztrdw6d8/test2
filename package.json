@@ -1,0 +1,16 @@
+{
+  "name": "front-system-diagnostic",
+  "version": "7.0.0",
+  "description": "Web app for diagnosing the PLC96 front and door control over a USB-RS232 cable (Web Serial / WebUSB)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:docs": "node scripts/build.mjs --out docs",
+    "test": "node test/pl2303.test.cjs",
+    "start": "node scripts/build.mjs && node scripts/serve.mjs"
+  },
+  "engines": {
+    "node": ">=26"
+  }
+}

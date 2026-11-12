@@ -1,0 +1,27 @@
+--ENG--
+Error 82:
+RBNSF (Sensor Failure) statuslamp is incorrect.
+This error can occur when:
+• RBNSF is read incorrect (train sensor or PLC fault).
+• rhtin is read incorrect (train sensor or PLC fault).
+• rhtout is read incorrect (train sensor or PLC fault).
+• lftin is read incorrect (train sensor or PLC fault).
+• lftout is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 82:
+RBNSF (Sensor Failure) statuslamp is onjuist.
+Deze fout kan optreden wanneer:
+• RBNSF wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• rhtin wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• rhtout wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• Ilftin wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• lftout wordt verkeerd uitgelezen (treinsensor of PLC storing).
+--FR--
+Erreur 82:
+Le voyant d'état RBNSF (Sensor Failure) est incorrect.
+Cette erreur peut se produire lorsque:
+• RBNSF est lu incorrect (défaut du capteur de train ou PLC).
+• rhtin est lu incorrect (défaut du capteur de train ou PLC).
+• rhtout est lu incorrect (défaut du capteur de train ou PLC).
+• lftin est lu incorrect (défaut du capteur de train ou PLC).
+• lftout est lu incorrect (défaut du capteur de train ou PLC).

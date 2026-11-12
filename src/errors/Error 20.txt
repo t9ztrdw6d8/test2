@@ -1,0 +1,6 @@
+--ENG--
+These are the front/back light related errors.
+--NL--
+Dit zijn de voor- en achterlicht gerelateerde fouten.
+--FR--
+Ce sont les erreurs liées à la lumière avant/arrière.

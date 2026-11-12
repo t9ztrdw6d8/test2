@@ -1,0 +1,1111 @@
+<title>Front System Diagnostic</title>
+<meta name="theme-color" content="#0E1115">
+<style>
+/* Layout: sticky header + tab pages; overview cards flow in columns; bottom tab bar on phones, tabs in the header from 900px. */
+:root {
+  --bg: #0E1115; --surface: #171C22; --surface-hi: #1F252D; --line: #2A323C;
+  --text: #E7EBEF; --muted: #8D98A3; --amber: #FFB300; --on-amber: #241A00;
+  --ok: #3FC97A; --bad: #FF5A5F; --off: #313942; --info: #5AA9FF;
+  --lamp-white: #F4F7FA; --lamp-red: #FF3B30; --orange: #FF8B28; --boost: #E9DC13;
+  --f-body: "Roboto", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: ui-monospace, "Roboto Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 var(--f-body); -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.mono { font-family: var(--f-mono); }
+.muted { color: var(--muted); }
+.label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); display: flex; align-items: center; gap: 14px; padding: 10px 16px; }
+.brand { flex: 1; min-width: 0; }
+.brand h1 { margin: 0; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand p { margin: 0; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 99px; padding: 8px 13px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--pc); background: color-mix(in srgb, var(--pc) 15%, transparent); white-space: nowrap; }
+.pill .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--pc); }
+.pill.busy .dot { animation: blink 1.2s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+
+/* tabs */
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); }
+nav.tabs button { background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; color: var(--muted); font-size: 12px; cursor: pointer; position: relative; }
+nav.tabs .ico { width: 56px; height: 30px; border-radius: 99px; display: grid; place-items: center; transition: background .15s; }
+nav.tabs svg { width: 22px; height: 22px; fill: currentColor; }
+nav.tabs .ico span { display: none; }
+nav.tabs button[aria-current="page"] { color: var(--text); }
+nav.tabs button[aria-current="page"] .ico { background: var(--amber); color: var(--on-amber); }
+.badge { position: absolute; top: 0; left: calc(50% + 6px); min-width: 17px; height: 17px; border-radius: 9px; background: var(--bad); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; padding: 0 4px; }
+main { width: 100%; max-width: 1400px; margin: 0 auto; padding-inline: 16px; padding-block: 4px calc(96px + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 900px) {
+  nav.tabs { position: static; display: flex; gap: 4px; background: none; border: 0; padding: 0; }
+  nav.tabs button { flex-direction: row; gap: 8px; padding: 0; font-size: 14px; }
+  nav.tabs .ico { width: auto; height: 36px; padding: 0 14px 0 10px; gap: 8px; display: flex; align-items: center; }
+  nav.tabs .ico span { display: inline; }
+  nav.tabs button > .txt { display: none; }
+  .badge { top: -4px; left: auto; right: -4px; }
+  main { padding-block: 8px 32px; }
+}
+
+/* cards */
+.grid { columns: 340px; column-gap: 12px; }
+.card { break-inside: avoid; display: flex; flex-direction: column; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 16px; margin-bottom: 12px; min-width: 0; }
+.card-head { display: flex; align-items: center; gap: 10px; }
+.card-head .label { flex: 1; }
+.state { font-size: 13px; font-weight: 600; }
+.full { margin-bottom: 12px; }
+.dim .grid { opacity: .6; }
+.page[hidden] { display: none; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { --cc: var(--amber); display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 99px; background: var(--surface-hi); border: 1px solid transparent; font: 12px var(--f-mono); color: var(--muted); transition: background .15s, border-color .15s, color .15s; }
+.chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--off); transition: background .15s; }
+.chip.on { background: color-mix(in srgb, var(--cc) 16%, transparent); border-color: color-mix(in srgb, var(--cc) 70%, transparent); color: var(--text); }
+.chip.on::before { background: var(--cc); }
+[data-c="ok"] { --cc: var(--ok); } [data-c="bad"] { --cc: var(--bad); } [data-c="orange"] { --cc: var(--orange); } [data-c="info"] { --cc: var(--info); }
+
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface-hi); }
+.seg span { text-align: center; padding: 10px 4px; border-radius: 10px; font-size: 13px; font-weight: 500; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background .18s, color .18s; }
+.seg span.active { background: var(--amber); color: var(--on-amber); font-weight: 700; }
+
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.metric b { display: block; font-size: 16px; font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.metric b.bad { color: var(--bad); }
+
+/* drawings */
+.drawing { width: 100%; max-width: 360px; margin: 0 auto; display: block; }
+.gauge .track { stroke: var(--off); }
+.gauge .band { stroke: color-mix(in srgb, var(--ok) 30%, transparent); }
+.gauge .value { stroke: var(--ok); transition: stroke .2s; }
+.gauge.out .value, .gauge.out .marker { stroke: var(--amber); }
+.gauge .marker { fill: var(--surface); stroke: var(--ok); stroke-width: 7; }
+.gauge .tick { stroke: var(--muted); stroke-width: 1.5; opacity: .45; }
+.gauge .tick.major { opacity: .9; }
+.gauge .target { stroke: var(--text); stroke-width: 3; stroke-linecap: round; }
+.gauge .num { fill: var(--text); font: 700 48px var(--f-body); }
+.gauge .unit { fill: var(--muted); font: 13px var(--f-body); }
+
+.lamp .glow { opacity: 0; transition: opacity .15s; }
+.lamp .core { fill: var(--off); stroke: var(--line); stroke-width: 1.6; transition: fill .15s; }
+.lamp .hl { fill: #fff; opacity: 0; transition: opacity .15s; }
+.lamp.on .glow { opacity: 1; }
+.lamp.on .hl { opacity: .55; }
+.lamp.on[data-c="white"] .core { fill: var(--lamp-white); }
+.lamp.on[data-c="red"] .core { fill: var(--lamp-red); }
+.lamp.on[data-c="ok"] .core { fill: var(--ok); }
+.lamp.on[data-c="orange"] .core { fill: var(--orange); }
+.lamp.on[data-c="amber"] .core { fill: var(--amber); }
+.lamp.on[data-c="boost"] .core { fill: var(--boost); }
+.sides { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+
+.door .leaf { fill: #2E3742; stroke: var(--off); stroke-width: 4; transition: stroke .2s, transform .4s; }
+.door .leaf.inflate { stroke: var(--ok); } .door .leaf.deflate { stroke: var(--bad); }
+.door .leaf.pushed { transform: translateX(9px); }
+.door .diaph { fill: var(--off); transition: fill .2s; } .door .diaph.on { fill: var(--amber); }
+.door .bolt { transition: transform .25s, fill .2s; fill: none; stroke: var(--muted); stroke-width: 2; stroke-dasharray: 6 5; }
+.door .bolt.in, .door .bolt.out { stroke: none; }
+.door .bolt.in { fill: var(--ok); } .door .bolt.out { fill: var(--bad); }
+.door .bolt.left.in { transform: translateX(15px); } .door .bolt.right.in { transform: translateX(-15px); }
+
+.lampgroups { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; font-size: 11px; color: var(--muted); }
+.lampgroups svg { height: 30px; display: block; margin: 0 auto 2px; }
+.row { display: flex; align-items: center; gap: 8px; }
+.row .grow { flex: 1; }
+
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tile { display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 14px; background: var(--surface-hi); transition: background .15s; min-width: 0; }
+.tile.fault { background: color-mix(in srgb, var(--bad) 14%, transparent); }
+.tile b { display: block; font: 700 12px var(--f-mono); color: var(--muted); }
+.tile.fault b { color: var(--text); }
+.tile small { display: block; font-size: 11px; line-height: 1.2; color: var(--muted); }
+.tile svg { flex: none; width: 24px; height: 24px; }
+
+/* connect + errors banner */
+.btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { border: 1px solid var(--line); background: none; color: var(--amber); border-radius: 99px; padding: 10px 18px; font-weight: 600; cursor: pointer; }
+.btn.primary { background: var(--amber); border-color: var(--amber); color: var(--on-amber); }
+.btn.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.problem { color: var(--bad); font-size: 14px; }
+.progress { height: 4px; border-radius: 4px; background: var(--off); overflow: hidden; }
+.progress::after { content: ""; display: block; height: 100%; width: 40%; background: var(--amber); border-radius: 4px; animation: slide 1.1s ease-in-out infinite; }
+@keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+.banner { background: color-mix(in srgb, var(--bad) 12%, transparent); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.banner .label { color: var(--bad); }
+.banner a { color: var(--bad); font-size: 13px; cursor: pointer; text-decoration: none; }
+.erow { display: flex; gap: 12px; align-items: flex-start; padding: 6px 4px; border-radius: 12px; cursor: pointer; background: none; border: 0; text-align: left; width: 100%; }
+.erow .code { font-size: 22px; font-weight: 700; color: var(--bad); width: 40px; flex: none; line-height: 1.2; }
+.erow .t { font-weight: 500; }
+.erow .d { font-size: 13px; color: var(--muted); }
+
+/* errors page */
+.list { display: flex; flex-direction: column; gap: 8px; max-width: 760px; }
+.list h2 { margin: 14px 4px 2px; }
+.list .head { display: flex; align-items: center; }
+.list .head h2 { flex: 1; }
+.ecard { display: flex; gap: 12px; padding: 14px; border-radius: 16px; background: var(--surface); border: 0; text-align: left; width: 100%; cursor: pointer; }
+.ecard.active { background: color-mix(in srgb, var(--bad) 10%, transparent); }
+.ecard .code { font-size: 22px; font-weight: 700; width: 46px; flex: none; color: var(--muted); }
+.ecard.active .code { color: var(--bad); }
+.ecard small { display: block; font-size: 12px; color: var(--muted); }
+.ok-box { display: flex; gap: 12px; align-items: center; padding: 16px; border-radius: 16px; background: color-mix(in srgb, var(--ok) 10%, transparent); }
+.cat { display: flex; gap: 12px; padding: 10px 8px; border-radius: 12px; background: none; border: 0; text-align: left; cursor: pointer; width: 100%; }
+.cat b { color: var(--amber); width: 36px; flex: none; }
+.textbtn { background: none; border: 0; color: var(--amber); font-weight: 600; cursor: pointer; padding: 6px 8px; }
+
+/* registers page */
+.regs { display: flex; flex-direction: column; gap: 14px; }
+.reg-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.reg-h b { font: 700 15px var(--f-mono); }
+.reg-h span { font: 13px var(--f-mono); color: var(--amber); font-variant-numeric: tabular-nums; }
+.bits { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-top: 6px; }
+.bit { height: 40px; border-radius: 8px; background: var(--surface-hi); display: grid; place-items: center; font: 9px var(--f-mono); letter-spacing: -.02em; color: var(--muted); overflow: hidden; white-space: nowrap; transition: background .12s; }
+.bit.unused { background: var(--bg); }
+.bit.on { background: var(--amber); color: var(--on-amber); font-weight: 700; }
+.term-in { display: flex; gap: 8px; }
+.term-in input { flex: 1; min-width: 0; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 12px; font: 16px var(--f-mono); text-transform: uppercase; }
+.term-in input:focus { border-color: var(--amber); outline: none; }
+.quick { cursor: pointer; border: 0; }
+.term-out { background: var(--bg); border-radius: 12px; padding: 12px; font: 13px var(--f-mono); display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow: auto; }
+.term-out .o { color: var(--amber); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 12px; align-items: start; }
+
+/* settings */
+.set { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
+.sw { display: flex; align-items: center; gap: 12px; }
+.sw div { flex: 1; }
+.sw small, .hint { display: block; font-size: 12px; color: var(--muted); }
+.sw input { appearance: none; width: 52px; height: 32px; border-radius: 16px; background: var(--off); position: relative; cursor: pointer; transition: background .15s; flex: none; }
+.sw input::after { content: ""; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%; background: var(--muted); transition: transform .15s, background .15s; }
+.sw input:checked { background: var(--amber); }
+.sw input:checked::after { transform: translateX(20px); background: var(--on-amber); }
+.slider .row b { color: var(--amber); font-variant-numeric: tabular-nums; }
+.slider input { width: 100%; accent-color: var(--amber); }
+.langs { display: flex; flex-wrap: wrap; gap: 8px; }
+.langs button { border: 1px solid var(--line); background: none; border-radius: 10px; padding: 8px 14px; cursor: pointer; color: var(--text); }
+.langs button.active { background: var(--amber); border-color: var(--amber); color: var(--on-amber); }
+
+/* sheet + snackbar */
+.scrim { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.55); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: 100%; max-width: 640px; max-height: 88%; overflow: auto; background: var(--surface); border-radius: 24px 24px 0 0; padding: 12px 20px calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; animation: up .2s ease-out; }
+@media (min-width: 700px) { .scrim { align-items: center; } .sheet { border-radius: 24px; } }
+@keyframes up { from { transform: translateY(40px); opacity: 0; } }
+.grab { width: 36px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 4px; }
+.sheet h2 { margin: 0; font-size: 20px; }
+.port { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 16px; background: var(--surface-hi); border: 1px solid transparent; cursor: pointer; text-align: left; width: 100%; }
+.port.kit { border-color: color-mix(in srgb, var(--ok) 60%, transparent); }
+.port div { flex: 1; }
+.port small { display: block; font-size: 12px; color: var(--muted); }
+.port:disabled { opacity: .5; cursor: not-allowed; }
+.explain { white-space: pre-wrap; line-height: 1.55; }
+.snack { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30; background: #E7EBEF; color: #12161B; padding: 12px 18px; border-radius: 10px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 24px rgba(0,0,0,.4); }
+@media (min-width: 900px) { .snack { bottom: 24px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="g-white"><stop offset="0" stop-color="#F4F7FA" stop-opacity=".55"/><stop offset="1" stop-color="#F4F7FA" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g-red"><stop offset="0" stop-color="#FF3B30" stop-opacity=".55"/><stop offset="1" stop-color="#FF3B30" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g-ok"><stop offset="0" stop-color="#3FC97A" stop-opacity=".5"/><stop offset="1" stop-color="#3FC97A" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g-orange"><stop offset="0" stop-color="#FF8B28" stop-opacity=".5"/><stop offset="1" stop-color="#FF8B28" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g-amber"><stop offset="0" stop-color="#FFB300" stop-opacity=".5"/><stop offset="1" stop-color="#FFB300" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g-boost"><stop offset="0" stop-color="#E9DC13" stop-opacity=".5"/><stop offset="1" stop-color="#E9DC13" stop-opacity="0"/></radialGradient>
+    <linearGradient id="g-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2B333D"/><stop offset="1" stop-color="#1B2128"/></linearGradient>
+    <linearGradient id="g-glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0A0D11"/><stop offset="1" stop-color="#161C24"/></linearGradient>
+  </defs>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <h1>Front System Diagnostic</h1>
+      <p id="subtitle" data-t="app_subtitle"></p>
+    </div>
+    <nav class="tabs" aria-label="Pages">
+      <button data-tab="overview"><span class="ico"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span data-t="tab_overview"></span></span><span class="txt" data-t="tab_overview"></span></button>
+      <button data-tab="errors"><span class="ico"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg><span data-t="tab_errors"></span></span><span class="txt" data-t="tab_errors"></span><span class="badge" id="badge" hidden></span></button>
+      <button data-tab="registers"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg><span data-t="tab_registers"></span></span><span class="txt" data-t="tab_registers"></span></button>
+      <button data-tab="settings"><span class="ico"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg><span data-t="tab_settings"></span></span><span class="txt" data-t="tab_settings"></span></button>
+    </nav>
+    <button class="pill" id="pill"><span class="dot"></span><span id="pill-text"></span></button>
+  </header>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section class="page" id="page-overview">
+      <div class="card full" id="connect-card">
+        <div class="card-head"><span class="label" data-t="card_connection"></span></div>
+        <div id="connect-body"></div>
+      </div>
+      <div class="banner full" id="banner" hidden>
+        <div class="card-head"><span class="label" id="banner-title"></span><a id="banner-all" data-t="action_all_errors"></a></div>
+        <div id="banner-list"></div>
+      </div>
+      <div class="grid" id="grid">
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="card_pressure"></span><span class="state" id="p-state"></span></div>
+          <svg class="drawing gauge" id="gauge" viewBox="0 0 300 192" role="img" aria-label="Pfront">
+            <path class="track" fill="none" stroke-width="16" stroke-linecap="round" id="g-track"/>
+            <path class="band" fill="none" stroke-width="16" id="g-band"/>
+            <g id="g-ticks"></g>
+            <path class="value" fill="none" stroke-width="7" stroke-linecap="round" id="g-value"/>
+            <line class="target" id="g-target"/>
+            <circle class="marker" r="7" id="g-marker"/>
+            <text class="num" x="150" y="128" text-anchor="middle" id="g-num">0</text>
+            <text class="unit" x="150" y="150" text-anchor="middle">mbar</text>
+          </svg>
+          <div class="metrics">
+            <div class="metric"><span class="label">Pideal</span><b id="m-pideal">—</b></div>
+            <div class="metric"><span class="label" data-t="datasheet"></span><b id="m-sheet">—</b></div>
+            <div class="metric"><span class="label" data-t="allowed"></span><b>−5 / +12</b></div>
+          </div>
+          <div class="chips"><span class="chip" data-sig="INFLATE" data-c="ok">INFLATE</span><span class="chip" data-sig="DEFLATE" data-c="bad">DEFLATE</span><span class="chip" data-sig="FCE">FCE</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="card_door"></span><span class="state" id="door-state"></span></div>
+          <svg class="drawing door" viewBox="0 0 300 143" role="img" aria-label="Door">
+            <rect x="81" y="4" width="138" height="120" rx="10" fill="#1F252D"/>
+            <rect class="leaf" id="door-leaf" x="102" y="11" width="96" height="106" rx="8"/>
+            <rect class="diaph" id="door-diaph" x="102" y="126" width="96" height="9" rx="4"/>
+            <rect class="bolt left" id="bolt-left" x="54" y="57" width="42" height="14" rx="7"/>
+            <rect class="bolt right" id="bolt-right" x="204" y="57" width="42" height="14" rx="7"/>
+          </svg>
+          <div class="chips">
+            <span class="chip" data-sig="LFTIN" data-c="ok">LFTIN</span><span class="chip" data-sig="LFTOUT" data-c="bad">LFTOUT</span>
+            <span class="chip" data-sig="RHTIN" data-c="ok">RHTIN</span><span class="chip" data-sig="RHTOUT" data-c="bad">RHTOUT</span>
+            <span class="chip" data-sig="CLOSED" data-c="orange">CLOSED</span><span class="chip" data-sig="OPENING">OPENING</span>
+            <span class="chip" data-sig="CLOSING">CLOSING</span><span class="chip" data-sig="PUSH">PUSH</span>
+            <span class="chip" data-sig="INFSEAL" data-c="ok">INFSEAL</span><span class="chip" data-sig="DEFSEAL" data-c="bad">DEFSEAL</span>
+            <span class="chip" data-sig="DIAPH">DIAPH</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="card_lights"></span><span class="state" id="lights-state"></span></div>
+          <svg class="drawing" viewBox="0 0 300 207" role="img" aria-label="Lights">
+            <path d="M60 10 L240 10 Q264 12 270 37 L285 174 Q288 197 258 197 L42 197 Q12 197 15 174 L30 37 Q36 12 60 10 Z" fill="url(#g-body)" stroke="#2A323C" stroke-width="2"/>
+            <rect x="60" y="41" width="180" height="62" rx="14" fill="url(#g-glass)"/>
+            <rect x="36" y="166" width="228" height="12" rx="6" fill="#12161B"/>
+            <g class="lamp" data-sig="TOPWHT" data-c="white" transform="translate(150 26)"><circle class="glow" r="28" fill="url(#g-white)"/><circle class="core" r="9.3"/><circle class="hl" r="3.2" cx="-3" cy="-3"/></g>
+            <g class="lamp" data-sig="RHTRED" data-c="red" transform="translate(60 137)"><circle class="glow" r="28" fill="url(#g-red)"/><circle class="core" r="9.3"/><circle class="hl" r="3.2" cx="-3" cy="-3"/></g>
+            <g class="lamp" data-sig="RHTWHT" data-c="white" transform="translate(99 137)"><circle class="glow" r="28" fill="url(#g-white)"/><circle class="core" r="9.3"/><circle class="hl" r="3.2" cx="-3" cy="-3"/></g>
+            <g class="lamp" data-sig="LFTWHT" data-c="white" transform="translate(201 137)"><circle class="glow" r="28" fill="url(#g-white)"/><circle class="core" r="9.3"/><circle class="hl" r="3.2" cx="-3" cy="-3"/></g>
+            <g class="lamp" data-sig="LFTRED" data-c="red" transform="translate(240 137)"><circle class="glow" r="28" fill="url(#g-red)"/><circle class="core" r="9.3"/><circle class="hl" r="3.2" cx="-3" cy="-3"/></g>
+          </svg>
+          <div class="sides"><span data-t="side_right"></span><span data-t="seen_from_front"></span><span data-t="side_left"></span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="card_coupling"></span><span class="state muted" id="coupling-state"></span></div>
+          <div class="seg" id="seg-coupling"><span data-v="front" data-t="coupling_front"></span><span data-v="end" data-t="coupling_end"></span><span data-v="coupled" data-t="coupling_coupled"></span></div>
+          <div class="chips"><span class="chip" data-sig="NTC">NTC</span><span class="chip" data-sig="NTNC">NTNC</span><span class="chip" data-sig="NFOT">NFOT</span><span class="chip" data-sig="NBOT">NBOT</span><span class="chip" data-sig="PREPARE" data-c="info">PREPARE</span><span class="chip" data-sig="POK" data-c="ok">POK</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="card_key"></span><span class="state muted" id="key-present"></span></div>
+          <div class="seg" id="seg-key"><span data-v="closing" data-t="key_closing"></span><span data-v="neutral">0</span><span data-v="opening" data-t="key_opening"></span></div>
+          <div class="lampgroups">
+            <div><svg viewBox="0 0 60 30"><g class="lamp" data-sig="LFTIN" data-c="ok" transform="translate(16 15)"><circle class="glow" r="15" fill="url(#g-ok)"/><circle class="core" r="8"/></g><g class="lamp" data-sig="RHTIN" data-c="ok" transform="translate(44 15)"><circle class="glow" r="15" fill="url(#g-ok)"/><circle class="core" r="8"/></g></svg><span data-t="lamps_locking"></span></div>
+            <div><svg viewBox="0 0 60 30"><g class="lamp" data-sig="CLOSED" data-c="orange" transform="translate(30 15)"><circle class="glow" r="15" fill="url(#g-orange)"/><circle class="core" r="8"/></g></svg><span data-t="lamps_closed"></span></div>
+            <div><svg viewBox="0 0 60 30"><g class="lamp" data-sig="LFTOUT" data-c="red" transform="translate(16 15)"><circle class="glow" r="15" fill="url(#g-red)"/><circle class="core" r="8"/></g><g class="lamp" data-sig="RHTOUT" data-c="red" transform="translate(44 15)"><circle class="glow" r="15" fill="url(#g-red)"/><circle class="core" r="8"/></g></svg><span data-t="lamps_unlocking"></span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="card_heating"></span><span class="state" id="lowtemp" style="color:var(--info)" data-t="low_temp" hidden></span></div>
+          <div class="seg" id="seg-heater"><span data-v="off">0</span><span data-v="normal" data-t="heater_normal"></span><span data-v="boost" data-t="heater_boost"></span></div>
+          <div class="row"><svg viewBox="0 0 28 28" width="28" height="28"><g class="lamp" data-sig="BSTLAMP" data-c="boost" transform="translate(14 14)"><circle class="glow" r="14" fill="url(#g-boost)"/><circle class="core" r="8"/></g></svg><span class="muted" data-t="boost_lamp"></span></div>
+          <div class="chips"><span class="chip" data-sig="ACTNORM">ACTNORM</span><span class="chip" data-sig="ACTBST">ACTBST</span><span class="chip" data-sig="NORM" data-c="ok">NORM</span><span class="chip" data-sig="BOOST" data-c="ok">BOOST</span><span class="chip" data-sig="LOWTEMP" data-c="info">LOWTEMP</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="card_status_lamps"></span><span class="muted" style="font-size:12px">ENALED</span><svg viewBox="0 0 18 18" width="18" height="18"><g class="lamp" data-sig="ENALED" data-c="amber" transform="translate(9 9)"><circle class="glow" r="9" fill="url(#g-amber)"/><circle class="core" r="5.5"/></g></svg></div>
+          <div class="tiles" id="tiles"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ERRORS -->
+    <section class="page" id="page-errors" hidden><div class="list" id="errors-list"></div></section>
+
+    <!-- REGISTERS -->
+    <section class="page" id="page-registers" hidden>
+      <div class="two">
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="card_link"></span></div>
+          <div class="metrics">
+            <div class="metric"><span class="label" data-t="response_time"></span><b id="r-rt">—</b></div>
+            <div class="metric"><span class="label" data-t="answers_per_second"></span><b id="r-fps">—</b></div>
+            <div class="metric"><span class="label">PLC</span><b id="r-plc">—</b></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="card_terminal"></span><button class="textbtn" id="term-clear" data-t="action_clear" hidden></button></div>
+          <span class="hint" data-t="terminal_hint"></span>
+          <form class="term-in" id="term-form"><input id="term-input" placeholder="DEW0" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Command"><button class="btn primary" data-t="action_send"></button></form>
+          <div class="chips" id="quick"></div>
+          <div class="term-out" id="term-out" hidden></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px" id="usb-card" hidden>
+        <div class="card-head"><span class="label" data-t="card_usb"></span><span class="state" id="usb-name"></span></div>
+        <div class="metrics">
+          <div class="metric"><span class="label" data-t="usb_chip"></span><b id="usb-type">—</b></div>
+          <div class="metric"><span class="label" data-t="usb_ids"></span><b id="usb-ids">—</b></div>
+          <div class="metric"><span class="label" data-t="usb_rev"></span><b id="usb-rev">—</b></div>
+        </div>
+        <div><span class="label" data-t="usb_bytes"></span> <b id="usb-bytes" class="mono">0 / 0</b></div>
+        <div><span class="label" data-t="usb_steps"></span><div class="term-out" id="usb-steps" style="margin-top:6px"></div></div>
+      </div>
+      <div class="card" style="margin-top:12px"><div class="card-head"><span class="label" data-t="card_registers"></span></div><div class="regs" id="regs"></div></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="page" id="page-settings" hidden>
+      <div class="set">
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="settings_connection"></span></div>
+          <label class="sw"><div><span data-t="setting_autoconnect"></span><small data-t="setting_autoconnect_hint"></small></div><input type="checkbox" id="s-auto"></label>
+          <div class="slider"><div class="row"><span class="grow" data-t="setting_plc_timeout"></span><b id="s-timeout-v"></b></div><input type="range" id="s-timeout" min="2" max="30" step="1"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="settings_diagnosis"></span></div>
+          <div class="slider"><div class="row"><span class="grow" data-t="setting_pressure_timeout"></span><b id="s-pressure-v"></b></div><input type="range" id="s-pressure" min="15" max="300" step="5"></div>
+          <div class="slider"><div class="row"><span class="grow" data-t="setting_error_delay"></span><b id="s-delay-v"></b></div><input type="range" id="s-delay" min="0.5" max="10" step="0.5"></div>
+          <span class="hint" data-t="setting_error_delay_hint"></span>
+          <label class="sw"><div><span data-t="setting_notify"></span><small data-t="setting_notify_hint"></small></div><input type="checkbox" id="s-notify"></label>
+          <label class="sw"><div><span data-t="setting_screen_on"></span><small data-t="setting_screen_on_hint"></small></div><input type="checkbox" id="s-screen"></label>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="settings_language"></span></div>
+          <div class="langs" id="langs"><button data-l="" data-t="language_system"></button><button data-l="nl">Nederlands</button><button data-l="en">English</button><button data-l="fr">Français</button></div>
+        </div>
+        <div class="card" id="install-card" hidden>
+          <div class="card-head"><span class="label" data-t="card_app"></span></div>
+          <span class="hint" id="install-state"></span>
+          <div><button class="btn primary" id="s-install" data-t="install_app" hidden></button></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="label" data-t="settings_about"></span></div>
+          <b>Front System Diagnostic 7.0 (web)</b>
+          <span class="hint" data-t="about_text"></span>
+          <span class="hint" id="support"></span>
+          <div><button class="btn" id="s-reset" data-t="action_defaults"></button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="overlay"></div>
+<div class="snack" id="snack" hidden></div>
+
+<script>
+/*CORE*/
+</script>
+<script>
+"use strict";
+const ERROR_FILES = /*ERRORS*/{};
+
+/* ---------- texts ---------- */
+const STR = {
+  en: {
+    app_subtitle: "PLC96 front and door control", tab_overview: "Overview", tab_errors: "Errors", tab_registers: "Registers", tab_settings: "Settings",
+    state_connected: "Connected", state_connecting: "Connecting", state_reconnecting: "Reconnecting", state_disconnected: "Offline",
+    state_disconnected_title: "Not connected", state_connecting_long: "Connecting to %1…", state_reconnecting_long: "PLC stopped answering, reconnecting via %1…",
+    connected_to: "Connected to %1 via %2", problem_timeout: "The PLC did not answer in time (PLC timeout).", problem_lost: "Connection lost. %1", problem_open: "The cable could not be opened. %1",
+    hint_cable: "Plug in the USB-RS232 cable and press Connect. On a phone use an OTG adapter.",
+    action_connect: "Connect", action_disconnect: "Disconnect", action_cancel: "Cancel", action_demo: "Demo", action_clear: "Clear", action_send: "Send", action_all_errors: "All errors", action_defaults: "Restore defaults",
+    card_connection: "Connection", card_pressure: "Rubber front pressure", card_door: "Front door", card_lights: "Lights", card_coupling: "Coupling", card_key: "Key switch", card_heating: "Heating",
+    card_status_lamps: "Status lamps", card_link: "Link", card_registers: "Registers", card_terminal: "Terminal",
+    port_serial: "USB cable (Web Serial)", port_serial_sub: "Chrome or Edge on a computer", port_usb: "Prolific USB cable (WebUSB)", port_usb_sub: "Chrome on Android, e.g. ACT AC6002 (USB-C)", action_choose: "Choose port", port_usb_any: "Other USB device", port_usb_any_sub: "When the cable is not in the list", recommended: "recommended",
+    hint_cable_android: "Plug the USB-C serial cable (e.g. ACT AC6002) into the phone and press Connect. Then pick the Prolific cable in the list.",
+    usb_busy: "The cable is in use by another app (for example the Front System Diagnostic Android app). Close that app, unplug and replug the cable, and try again.",
+    usb_not_serial: "This USB device is not a supported serial cable (%1).", usb_https: "USB needs https: open the app via its https address, not as a file.",
+    card_usb: "USB cable", usb_chip: "Chip", usb_ids: "VID:PID", usb_rev: "Revision", usb_bytes: "Received / sent", usb_steps: "Start-up",
+    port_known: "Previously used cable", port_kit_cable: "diagnostic cable", demo_title: "Demo PLC", demo_subtitle: "Simulated train, to try the app without a PLC",
+    no_usb: "This browser cannot use a USB cable. Use Chrome or Edge.", usb_blocked: "USB is blocked in this view. Open the app on its own (index.html) in Chrome or Edge.",
+    active_errors_count: "Active errors: %1", pressure_in_range: "In range", pressure_out_of_range: "Out of range", no_data: "No data yet", datasheet: "Datasheet", allowed: "Allowed",
+    door_closed: "Closed", door_pushed: "Being pushed open", door_unlocked: "Unlocked", door_half: "Half locked",
+    lights_off: "All off", lights_twoWhite: "2 white", lights_threeWhite: "3 white", lights_twoRed: "2 red", lights_invalid: "Invalid", side_right: "Right", side_left: "Left", seen_from_front: "seen from the front",
+    coupling_none: "No configuration", coupling_front: "Front", coupling_end: "End", coupling_coupled: "Coupled",
+    key_present: "Key inserted", key_absent: "No key", key_closing: "Closing", key_opening: "Opening", lamps_locking: "Locking", lamps_closed: "Closed", lamps_unlocking: "Unlocking",
+    low_temp: "Below freezing", heater_normal: "Normal", heater_boost: "Boost", boost_lamp: "Boost lamp",
+    lamp_FDL: "Front door locked or coupled", lamp_NSF: "Sensor failure", lamp_NFD: "Front defect", lamp_NFLD: "Front or tail light defect", lamp_NCF: "Configuration fault", lamp_NPD: "Pressure sensor defect",
+    response_time: "Response", answers_per_second: "Answers/s", terminal_hint: "Ask the PLC for one register. The answer appears below; normal polling continues.",
+    errors_active: "Active", errors_none: "No active errors", errors_history: "History", errors_history_empty: "No errors recorded yet.", errors_catalog: "All error codes",
+    since_time: "since %1", error_active_now: "This error is active now.", error_no_explanation: "No explanation available.", snackbar_error: "Error %1: %2",
+    settings_connection: "Connection", settings_diagnosis: "Diagnosis", settings_language: "Language", settings_about: "About",
+    setting_autoconnect: "Connect automatically", setting_autoconnect_hint: "To a cable that was used before, when it is plugged in", setting_plc_timeout: "PLC timeout",
+    setting_pressure_timeout: "Time to reach Pideal (error 12)", setting_error_delay: "Error delay",
+    setting_error_delay_hint: "A condition must last this long before it counts as an error. Status lamp errors (81–84) get 6 s extra.",
+    setting_notify: "Error message", setting_notify_hint: "Show a message when a new error is detected", setting_screen_on: "Keep screen on", setting_screen_on_hint: "While connected to the PLC",
+    language_system: "Browser language",
+    about_text: "Diagnosis of the PLC96 front and door control over the serial cable (9600 baud, 8N1). Web version of Front System Diagnostic, based on V1–V6 by Rik Peeters.",
+    card_app: "App", install_app: "Install app", install_hint: "Install the app for its own icon, full screen and offline use.", install_running: "Running as installed app.", install_done: "App installed.", update_ready: "A new version is ready. Close and reopen the app to use it.",
+    support: "This browser: Web Serial %1 · WebUSB %2", yes: "yes", no: "no", close: "Close",
+    err_title_11: "Pideal does not match the datasheet", err_title_12: "Pressure not reached in time", err_title_13: "Inflating and deflating at the same time",
+    err_title_21: "Only the right white lamp is on", err_title_22: "Only the left white lamp is on", err_title_23: "Only the right red lamp is on", err_title_24: "Only the left red lamp is on",
+    err_title_25: "Top lamp on without side lamps", err_title_26: "Invalid lamp combination", err_title_31: "Heating switch in two positions", err_title_41: "Coupled and not coupled at the same time",
+    err_title_51: "Seal inflating and deflating at the same time", err_title_61: "Key switch turned without a key", err_title_62: "Key switch open and close at the same time",
+    err_title_71: "Left bolt in and out (LFTOUT suspect)", err_title_72: "Left bolt in and out (LFTIN suspect)", err_title_73: "Right bolt in and out (RHTOUT suspect)", err_title_74: "Right bolt in and out (RHTIN suspect)",
+    err_title_81: "Status lamp RBFDL incorrect", err_title_82: "Status lamp RBNSF incorrect", err_title_83: "Status lamp RBNFLD incorrect", err_title_84: "Status lamp RBNCF incorrect",
+    err_detail_11: "Pideal = %1 mbar, expected %2 mbar", err_detail_12: "Pfront = %1 mbar, Pideal = %2 mbar, not reached within %3 s",
+    err_detail_lamp: "Lamp signal is %1, should be %2",
+  },
+  nl: {
+    app_subtitle: "PLC96 front- en deursturing", tab_overview: "Overzicht", tab_errors: "Fouten", tab_registers: "Registers", tab_settings: "Instellingen",
+    state_connected: "Verbonden", state_connecting: "Verbinden", state_reconnecting: "Opnieuw verbinden", state_disconnected: "Offline",
+    state_disconnected_title: "Niet verbonden", state_connecting_long: "Verbinden met %1…", state_reconnecting_long: "PLC antwoordt niet meer, opnieuw verbinden via %1…",
+    connected_to: "Verbonden met %1 via %2", problem_timeout: "De PLC antwoordde niet op tijd (PLC-timeout).", problem_lost: "Verbinding verbroken. %1", problem_open: "De kabel kon niet geopend worden. %1",
+    hint_cable: "Sluit de USB-RS232-kabel aan en druk op Verbinden. Gebruik op een telefoon een OTG-adapter.",
+    action_connect: "Verbinden", action_disconnect: "Verbinding verbreken", action_cancel: "Annuleren", action_demo: "Demo", action_clear: "Wissen", action_send: "Versturen", action_all_errors: "Alle fouten", action_defaults: "Standaardwaarden",
+    card_connection: "Verbinding", card_pressure: "Druk voorste rubber", card_door: "Frontdeur", card_lights: "Lichten", card_coupling: "Koppeling", card_key: "Sleutelschakelaar", card_heating: "Verwarming",
+    card_status_lamps: "Statuslampen", card_link: "Verbinding", card_registers: "Registers", card_terminal: "Terminal",
+    port_serial: "USB-kabel (Web Serial)", port_serial_sub: "Chrome of Edge op een computer", port_usb: "Prolific USB-kabel (WebUSB)", port_usb_sub: "Chrome op Android, bv. ACT AC6002 (USB-C)", action_choose: "Poort kiezen", port_usb_any: "Ander USB-apparaat", port_usb_any_sub: "Als de kabel niet in de lijst staat", recommended: "aanbevolen",
+    hint_cable_android: "Steek de USB-C-seriële kabel (bv. ACT AC6002) in de telefoon en druk op Verbinden. Kies daarna de Prolific-kabel in de lijst.",
+    usb_busy: "De kabel is in gebruik door een andere app (bijvoorbeeld de Android-app Front System Diagnostic). Sluit die app, trek de kabel uit en weer in, en probeer opnieuw.",
+    usb_not_serial: "Dit USB-apparaat is geen ondersteunde seriële kabel (%1).", usb_https: "USB werkt alleen via https: open de app via het https-adres, niet als bestand.",
+    card_usb: "USB-kabel", usb_chip: "Chip", usb_ids: "VID:PID", usb_rev: "Revisie", usb_bytes: "Ontvangen / verstuurd", usb_steps: "Opstarten",
+    port_known: "Eerder gebruikte kabel", port_kit_cable: "diagnosekabel", demo_title: "Demo-PLC", demo_subtitle: "Gesimuleerde trein, om de app zonder PLC te proberen",
+    no_usb: "Deze browser kan geen USB-kabel aansturen. Gebruik Chrome of Edge.", usb_blocked: "USB is geblokkeerd in deze weergave. Open de app los (index.html) in Chrome of Edge.",
+    active_errors_count: "Actieve fouten: %1", pressure_in_range: "Binnen bereik", pressure_out_of_range: "Buiten bereik", no_data: "Nog geen gegevens", datasheet: "Datasheet", allowed: "Toegestaan",
+    door_closed: "Gesloten", door_pushed: "Wordt opengeduwd", door_unlocked: "Ontgrendeld", door_half: "Half vergrendeld",
+    lights_off: "Alles uit", lights_twoWhite: "2 wit", lights_threeWhite: "3 wit", lights_twoRed: "2 rood", lights_invalid: "Ongeldig", side_right: "Rechts", side_left: "Links", seen_from_front: "gezien van voor",
+    coupling_none: "Geen configuratie", coupling_front: "Kop", coupling_end: "Staart", coupling_coupled: "Gekoppeld",
+    key_present: "Sleutel aanwezig", key_absent: "Geen sleutel", key_closing: "Sluiten", key_opening: "Openen", lamps_locking: "Vergrendelen", lamps_closed: "Gesloten", lamps_unlocking: "Ontgrendelen",
+    low_temp: "Onder het vriespunt", heater_normal: "Normaal", heater_boost: "Boost", boost_lamp: "Boostlamp",
+    lamp_FDL: "Frontdeur vergrendeld of gekoppeld", lamp_NSF: "Sensorfout", lamp_NFD: "Frontdefect", lamp_NFLD: "Front- of sluitlicht defect", lamp_NCF: "Configuratiefout", lamp_NPD: "Drukvoeler defect",
+    response_time: "Antwoordtijd", answers_per_second: "Antwoorden/s", terminal_hint: "Vraag één register op bij de PLC. Het antwoord verschijnt hieronder; het gewone uitlezen loopt gewoon door.",
+    errors_active: "Actief", errors_none: "Geen actieve fouten", errors_history: "Geschiedenis", errors_history_empty: "Nog geen fouten geregistreerd.", errors_catalog: "Alle foutcodes",
+    since_time: "sinds %1", error_active_now: "Deze fout is nu actief.", error_no_explanation: "Geen uitleg beschikbaar.", snackbar_error: "Fout %1: %2",
+    settings_connection: "Verbinding", settings_diagnosis: "Diagnose", settings_language: "Taal", settings_about: "Over",
+    setting_autoconnect: "Automatisch verbinden", setting_autoconnect_hint: "Met een eerder gebruikte kabel, zodra die wordt ingeplugd", setting_plc_timeout: "PLC-timeout",
+    setting_pressure_timeout: "Tijd om Pideal te halen (fout 12)", setting_error_delay: "Foutvertraging",
+    setting_error_delay_hint: "Een toestand moet zo lang aanhouden voor hij als fout telt. Fouten van statuslampen (81–84) krijgen 6 s extra.",
+    setting_notify: "Foutmelding", setting_notify_hint: "Toon een melding wanneer een nieuwe fout wordt gevonden", setting_screen_on: "Scherm aan houden", setting_screen_on_hint: "Zolang er een verbinding met de PLC is",
+    language_system: "Taal van de browser",
+    about_text: "Diagnose van de PLC96 front- en deursturing via de seriële kabel (9600 baud, 8N1). Webversie van Front System Diagnostic, gebaseerd op V1–V6 van Rik Peeters.",
+    card_app: "App", install_app: "App installeren", install_hint: "Installeer de app voor een eigen icoon, volledig scherm en gebruik zonder internet.", install_running: "Draait als geïnstalleerde app.", install_done: "App geïnstalleerd.", update_ready: "Er is een nieuwe versie klaar. Sluit de app en open hem opnieuw om hem te gebruiken.",
+    support: "Deze browser: Web Serial %1 · WebUSB %2", yes: "ja", no: "nee", close: "Sluiten",
+    err_title_11: "Pideal klopt niet met de datasheet", err_title_12: "Druk niet op tijd bereikt", err_title_13: "Tegelijk opblazen en aflaten",
+    err_title_21: "Alleen het rechter witte licht brandt", err_title_22: "Alleen het linker witte licht brandt", err_title_23: "Alleen het rechter rode licht brandt", err_title_24: "Alleen het linker rode licht brandt",
+    err_title_25: "Bovenlicht aan zonder zijlichten", err_title_26: "Ongeldige lichtcombinatie", err_title_31: "Verwarmingsschakelaar in twee standen", err_title_41: "Tegelijk gekoppeld en niet gekoppeld",
+    err_title_51: "Seal tegelijk opblazen en aflaten", err_title_61: "Sleutelschakelaar gedraaid zonder sleutel", err_title_62: "Sleutelschakelaar tegelijk openen en sluiten",
+    err_title_71: "Linker bout in én uit (LFTOUT verdacht)", err_title_72: "Linker bout in én uit (LFTIN verdacht)", err_title_73: "Rechter bout in én uit (RHTOUT verdacht)", err_title_74: "Rechter bout in én uit (RHTIN verdacht)",
+    err_title_81: "Statuslamp RBFDL klopt niet", err_title_82: "Statuslamp RBNSF klopt niet", err_title_83: "Statuslamp RBNFLD klopt niet", err_title_84: "Statuslamp RBNCF klopt niet",
+    err_detail_11: "Pideal = %1 mbar, verwacht %2 mbar", err_detail_12: "Pfront = %1 mbar, Pideal = %2 mbar, niet bereikt binnen %3 s",
+    err_detail_lamp: "Lampsignaal is %1, zou %2 moeten zijn",
+  },
+  fr: {
+    app_subtitle: "Commande avant et porte PLC96", tab_overview: "Aperçu", tab_errors: "Erreurs", tab_registers: "Registres", tab_settings: "Réglages",
+    state_connected: "Connecté", state_connecting: "Connexion", state_reconnecting: "Reconnexion", state_disconnected: "Hors ligne",
+    state_disconnected_title: "Non connecté", state_connecting_long: "Connexion à %1…", state_reconnecting_long: "L'automate ne répond plus, reconnexion via %1…",
+    connected_to: "Connecté à %1 via %2", problem_timeout: "L'automate n'a pas répondu à temps (timeout PLC).", problem_lost: "Connexion perdue. %1", problem_open: "Le câble n'a pas pu être ouvert. %1",
+    hint_cable: "Branchez le câble USB-RS232 et appuyez sur Connecter. Sur un téléphone, utilisez un adaptateur OTG.",
+    action_connect: "Connecter", action_disconnect: "Déconnecter", action_cancel: "Annuler", action_demo: "Démo", action_clear: "Effacer", action_send: "Envoyer", action_all_errors: "Toutes les erreurs", action_defaults: "Valeurs par défaut",
+    card_connection: "Connexion", card_pressure: "Pression du caoutchouc avant", card_door: "Porte avant", card_lights: "Feux", card_coupling: "Couplage", card_key: "Commutateur à clé", card_heating: "Chauffage",
+    card_status_lamps: "Voyants d'état", card_link: "Liaison", card_registers: "Registres", card_terminal: "Terminal",
+    port_serial: "Câble USB (Web Serial)", port_serial_sub: "Chrome ou Edge sur un ordinateur", port_usb: "Câble USB Prolific (WebUSB)", port_usb_sub: "Chrome sur Android, p. ex. ACT AC6002 (USB-C)", action_choose: "Choisir le port", port_usb_any: "Autre appareil USB", port_usb_any_sub: "Si le câble n'est pas dans la liste", recommended: "recommandé",
+    hint_cable_android: "Branchez le câble série USB-C (p. ex. ACT AC6002) au téléphone et appuyez sur Connecter. Choisissez ensuite le câble Prolific dans la liste.",
+    usb_busy: "Le câble est utilisé par une autre application (par exemple l'application Android Front System Diagnostic). Fermez-la, débranchez et rebranchez le câble, puis réessayez.",
+    usb_not_serial: "Cet appareil USB n'est pas un câble série pris en charge (%1).", usb_https: "L'USB exige https : ouvrez l'application via son adresse https, pas comme fichier.",
+    card_usb: "Câble USB", usb_chip: "Puce", usb_ids: "VID:PID", usb_rev: "Révision", usb_bytes: "Reçus / envoyés", usb_steps: "Démarrage",
+    port_known: "Câble déjà utilisé", port_kit_cable: "câble de diagnostic", demo_title: "Automate de démo", demo_subtitle: "Train simulé, pour essayer l'application sans automate",
+    no_usb: "Ce navigateur ne peut pas utiliser un câble USB. Utilisez Chrome ou Edge.", usb_blocked: "L'USB est bloqué dans cette vue. Ouvrez l'application seule (index.html) dans Chrome ou Edge.",
+    active_errors_count: "Erreurs actives : %1", pressure_in_range: "Dans la plage", pressure_out_of_range: "Hors plage", no_data: "Pas encore de données", datasheet: "Fiche technique", allowed: "Autorisé",
+    door_closed: "Fermée", door_pushed: "Poussée en ouverture", door_unlocked: "Déverrouillée", door_half: "À moitié verrouillée",
+    lights_off: "Tout éteint", lights_twoWhite: "2 blancs", lights_threeWhite: "3 blancs", lights_twoRed: "2 rouges", lights_invalid: "Invalide", side_right: "Droite", side_left: "Gauche", seen_from_front: "vu de face",
+    coupling_none: "Aucune configuration", coupling_front: "Tête", coupling_end: "Queue", coupling_coupled: "Couplé",
+    key_present: "Clé insérée", key_absent: "Pas de clé", key_closing: "Fermer", key_opening: "Ouvrir", lamps_locking: "Verrouiller", lamps_closed: "Fermée", lamps_unlocking: "Déverrouiller",
+    low_temp: "Sous zéro", heater_normal: "Normal", heater_boost: "Boost", boost_lamp: "Voyant boost",
+    lamp_FDL: "Porte avant verrouillée ou couplée", lamp_NSF: "Défaut capteur", lamp_NFD: "Défaut avant", lamp_NFLD: "Défaut feu avant ou arrière", lamp_NCF: "Défaut de configuration", lamp_NPD: "Capteur de pression défectueux",
+    response_time: "Réponse", answers_per_second: "Réponses/s", terminal_hint: "Demandez un registre à l'automate. La réponse s'affiche ci-dessous ; la lecture normale continue.",
+    errors_active: "Actives", errors_none: "Aucune erreur active", errors_history: "Historique", errors_history_empty: "Aucune erreur enregistrée.", errors_catalog: "Tous les codes d'erreur",
+    since_time: "depuis %1", error_active_now: "Cette erreur est active.", error_no_explanation: "Aucune explication disponible.", snackbar_error: "Erreur %1 : %2",
+    settings_connection: "Connexion", settings_diagnosis: "Diagnostic", settings_language: "Langue", settings_about: "À propos",
+    setting_autoconnect: "Connexion automatique", setting_autoconnect_hint: "À un câble déjà utilisé, dès qu'il est branché", setting_plc_timeout: "Timeout de l'automate",
+    setting_pressure_timeout: "Temps pour atteindre Pideal (erreur 12)", setting_error_delay: "Délai d'erreur",
+    setting_error_delay_hint: "Une condition doit durer ce temps avant de compter comme erreur. Les erreurs de voyants (81–84) ont 6 s de plus.",
+    setting_notify: "Message d'erreur", setting_notify_hint: "Afficher un message quand une nouvelle erreur est détectée", setting_screen_on: "Garder l'écran allumé", setting_screen_on_hint: "Pendant la connexion à l'automate",
+    language_system: "Langue du navigateur",
+    about_text: "Diagnostic de la commande avant et porte PLC96 via le câble série (9600 bauds, 8N1). Version web de Front System Diagnostic, basée sur V1–V6 de Rik Peeters.",
+    card_app: "Application", install_app: "Installer l'application", install_hint: "Installez l'application pour avoir sa propre icône, le plein écran et l'utilisation hors ligne.", install_running: "Fonctionne comme application installée.", install_done: "Application installée.", update_ready: "Une nouvelle version est prête. Fermez et rouvrez l'application pour l'utiliser.",
+    support: "Ce navigateur : Web Serial %1 · WebUSB %2", yes: "oui", no: "non", close: "Fermer",
+    err_title_11: "Pideal ne correspond pas à la fiche technique", err_title_12: "Pression non atteinte à temps", err_title_13: "Gonflage et dégonflage simultanés",
+    err_title_21: "Seul le feu blanc droit est allumé", err_title_22: "Seul le feu blanc gauche est allumé", err_title_23: "Seul le feu rouge droit est allumé", err_title_24: "Seul le feu rouge gauche est allumé",
+    err_title_25: "Feu supérieur sans feux latéraux", err_title_26: "Combinaison de feux invalide", err_title_31: "Commutateur de chauffage dans deux positions", err_title_41: "Couplé et non couplé en même temps",
+    err_title_51: "Joint gonflé et dégonflé en même temps", err_title_61: "Commutateur tourné sans clé", err_title_62: "Commutateur ouvrir et fermer en même temps",
+    err_title_71: "Verrou gauche entré et sorti (LFTOUT suspect)", err_title_72: "Verrou gauche entré et sorti (LFTIN suspect)", err_title_73: "Verrou droit entré et sorti (RHTOUT suspect)", err_title_74: "Verrou droit entré et sorti (RHTIN suspect)",
+    err_title_81: "Voyant RBFDL incorrect", err_title_82: "Voyant RBNSF incorrect", err_title_83: "Voyant RBNFLD incorrect", err_title_84: "Voyant RBNCF incorrect",
+    err_detail_11: "Pideal = %1 mbar, attendu %2 mbar", err_detail_12: "Pfront = %1 mbar, Pideal = %2 mbar, non atteint en %3 s",
+    err_detail_lamp: "Signal du voyant %1, devrait être %2",
+  },
+};
+
+/* ---------- settings (stored per browser) ---------- */
+const DEFAULTS = { autoConnect: true, plcTimeoutS: 10, pressureTimeoutS: 105, errorDelayS: 1.5, notify: true, keepScreenOn: true, lang: "" };
+function loadSettings() {
+  try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem("fsd-settings") || "{}") }; } catch (_) { return { ...DEFAULTS }; }
+}
+function saveSettings() {
+  try { localStorage.setItem("fsd-settings", JSON.stringify(S.settings)); } catch (_) { /* private mode */ }
+}
+
+const S = {
+  status: { state: "off", linkName: "", plcName: "", problem: null, detail: "", rt: 0, fps: 0 },
+  front: null, active: [], history: [], terminal: [], settings: loadSettings(), tab: "overview",
+  blocked: false,
+};
+let errorsDirty = true, termDirty = true, scheduled = false, userStopped = false;
+
+const lang = () => {
+  const l = S.settings.lang || (navigator.language || "en").slice(0, 2).toLowerCase();
+  return STR[l] ? l : "en";
+};
+function t(key, ...args) {
+  let s = (STR[lang()][key] ?? STR.en[key] ?? key);
+  args.forEach((a, i) => { s = s.split("%" + (i + 1)).join(a); });
+  return s;
+}
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const timeStr = (ms) => new Date(ms).toLocaleTimeString(lang());
+
+function errorTitle(code) { return t("err_title_" + code); }
+function errorDetail(code, a) {
+  if (code === 11) return t("err_detail_11", a[0], a[1]);
+  if (code === 12) return t("err_detail_12", a[0], a[1], a[2]);
+  if (code === 26) return `LFTWHT ${a[0]} · RHTWHT ${a[1]} · TOPWHT ${a[2]} · LFTRED ${a[3]} · RHTRED ${a[4]}`;
+  if (code >= 71 && code <= 74) return `LFTIN ${a[0]} · LFTOUT ${a[1]} · RHTIN ${a[2]} · RHTOUT ${a[3]}`;
+  if (code >= 81) return t("err_detail_lamp", a[0], a[1]);
+  return "";
+}
+/** Section of the V1–V5 error file in the app language. */
+function explanation(code) {
+  const text = ERROR_FILES["Error " + code];
+  if (!text) return "";
+  const section = { nl: "NL", fr: "FR" }[lang()] || "ENG";
+  const lines = text.split(/\r?\n/);
+  let start = lines.findIndex((l) => l.trim() === `--${section}--`);
+  if (start < 0) start = lines.findIndex((l) => l.trim() === "--ENG--");
+  const body = [];
+  for (const l of lines.slice(start + 1)) { if (/^--[A-Z]+--$/.test(l.trim())) break; body.push(l); }
+  while (body.length && !body[0].trim()) body.shift();
+  if (body.length && /\d/.test(body[0]) && body[0].trim().endsWith(":")) body.shift();
+  return body.join("\n").trim();
+}
+
+/* ---------- PLC wiring ---------- */
+const diag = new Diagnostics();
+function applySettings() {
+  diag.errorDelayMs = S.settings.errorDelayS * 1000;
+  diag.pressureTimeoutS = S.settings.pressureTimeoutS;
+}
+applySettings();
+
+const conn = new PlcConnection({
+  onRegister(name, value) { if (diag.update(name, value)) publish(diag.evaluate()); },
+  onStatus(st) {
+    const prev = S.status.state;
+    S.status = st;
+    if (st.state === "opening") { diag.reset(); publish(diag.evaluate()); }
+    if (st.state === "off" && prev !== "off") { diag.clearActive(); S.active = []; S.history = diag.events(); errorsDirty = true; }
+    updateWakeLock();
+    schedule();
+  },
+  onTerminal(line) {
+    S.terminal.push(line);
+    if (S.terminal.length > 200) S.terminal.shift();
+    termDirty = true;
+    schedule();
+  },
+});
+setInterval(() => {
+  if (S.status.state !== "off" && S.status.state !== "opening") publish(diag.evaluate());
+}, 250);
+
+function publish(r) {
+  S.front = r.state;
+  const key = r.active.map((e) => e.code + ":" + e.args.join(",")).join(";");
+  if (key !== S.activeKey) { S.activeKey = key; S.active = r.active; errorsDirty = true; }
+  if (r.raised.length || r.cleared.length) { S.history = diag.events(); errorsDirty = true; }
+  if (S.settings.notify) r.raised.forEach((e) => snack(t("snackbar_error", e.code, errorTitle(e.code))));
+  schedule();
+}
+
+function timeoutMs() { return S.settings.plcTimeoutS * 1000; }
+function startDemo() { userStopped = false; conn.connect(new DemoPlc(), timeoutMs()); }
+async function startSerial(port) {
+  userStopped = false;
+  try {
+    const p = port || await navigator.serial.requestPort();
+    conn.connect(new WebSerialLink(p), timeoutMs());
+  } catch (e) { usbError(e); }
+}
+/** WebUSB with the PL2303 driver; anyDevice shows every USB device in Chrome's list. */
+async function startUsb(device, anyDevice = false) {
+  userStopped = false;
+  if (!window.isSecureContext) { snack(t("usb_https")); return; }
+  try {
+    const d = device || await navigator.usb.requestDevice({ filters: anyDevice ? [] : [{ vendorId: PROLIFIC_VID }] });
+    const link = new Pl2303Link(d);
+    S.usbInfo = link.info;
+    conn.connect(link, timeoutMs());
+  } catch (e) { usbError(e); }
+}
+function usbError(e) {
+  if (e && e.name === "NotFoundError") return; // the user closed the picker
+  if (e && (e.name === "SecurityError" || e.name === "NotAllowedError")) { S.blocked = true; snack(t("usb_blocked")); }
+  else snack((e && e.message) || String(e));
+  schedule();
+}
+/** Problem line on the connection card, with a hint for the usual USB causes. */
+function problemText(st) {
+  if (st.problem === "timeout") return t("problem_timeout");
+  if (st.problem === "lost") return t("problem_lost", st.detail);
+  if (st.problem !== "open") return "";
+  if (/claim|in use|busy|access denied|unable to open/i.test(st.detail)) return t("usb_busy");
+  if (/bulk endpoints/i.test(st.detail)) return t("usb_not_serial", S.usbInfo ? S.usbInfo.vidPid : "?");
+  return t("problem_open", st.detail);
+}
+const isAndroid = /Android/i.test(navigator.userAgent) || (navigator.userAgentData && navigator.userAgentData.platform === "Android");
+function stop() { userStopped = true; conn.disconnect(); }
+
+/* automatic connect to a cable this browser was allowed to use before */
+async function knownPorts() {
+  const out = [];
+  try { if (navigator.serial) for (const p of await navigator.serial.getPorts()) out.push({ kind: "serial", port: p, kit: p.getInfo().usbVendorId === PROLIFIC_VID }); } catch (_) { S.blocked = true; }
+  try { if (navigator.usb) for (const d of await navigator.usb.getDevices()) if (d.vendorId === PROLIFIC_VID) out.push({ kind: "usb", port: d, kit: true }); } catch (_) { S.blocked = true; }
+  return out;
+}
+async function autoConnect() {
+  if (!S.settings.autoConnect || userStopped || S.status.state !== "off") return;
+  const ports = await knownPorts();
+  const p = ports.find((x) => x.kit) || ports[0];
+  if (!p) return;
+  if (p.kind === "serial") startSerial(p.port); else startUsb(p.port);
+}
+try { if (navigator.serial) navigator.serial.addEventListener("connect", () => autoConnect()); } catch (_) { /* blocked */ }
+try { if (navigator.usb) navigator.usb.addEventListener("connect", () => autoConnect()); } catch (_) { /* blocked */ }
+
+/* keep the screen on while connected */
+let wakeLock = null;
+async function updateWakeLock() {
+  const want = S.settings.keepScreenOn && S.status.state !== "off" && document.visibilityState === "visible";
+  try {
+    if (want && !wakeLock && navigator.wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => { wakeLock = null; }); }
+    if (!want && wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch (_) { wakeLock = null; }
+}
+document.addEventListener("visibilitychange", updateWakeLock);
+
+/* ---------- static parts ---------- */
+const LAMPS = ["FDL", "NSF", "NFD", "NFLD", "NCF", "NPD"];
+$("tiles").innerHTML = LAMPS.map((s) => `<div class="tile" data-fault="${s}"><svg viewBox="0 0 24 24"><g class="lamp" data-c="red" data-lamp="${s}" transform="translate(12 12)"><circle class="glow" r="12" fill="url(#g-red)"/><circle class="core" r="7.5"/></g></svg><div><b>RB${s === "FDL" ? "" : "N"}${s.replace(/^N/, "")}</b><small data-t="lamp_${s}"></small></div></div>`).join("");
+$("regs").innerHTML = RM.pollOrder.map((r) => `<div><div class="reg-h"><b>${r}</b><span id="rv-${r}">—</span></div>${RM.bits[r] ? `<div class="bits">${RM.bits[r].map((n, i) => `<div class="bit${n ? "" : " unused"}" id="rb-${r}-${i}">${n || "–"}</div>`).join("")}</div>` : ""}</div>`).join("");
+$("quick").innerHTML = RM.pollOrder.map((r) => `<button class="chip quick" data-cmd="${r}">${r}</button>`).join("");
+
+// gauge geometry: 240° arc from 150° (clockwise), centre (150,126), radius 108
+const G = { cx: 150, cy: 126, r: 108 };
+const pt = (a, r) => { const rad = (a * Math.PI) / 180; return [G.cx + Math.cos(rad) * r, G.cy + Math.sin(rad) * r]; };
+function arc(a0, a1, r = G.r) {
+  if (a1 - a0 < 0.2) return "";
+  const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r);
+  return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+}
+$("g-track").setAttribute("d", arc(150, 390));
+const gauge = { shown: 0, target: 0, max: 80, maxShown: 80, pideal: 0, anim: null };
+function drawGauge() {
+  const ang = (v) => 150 + 240 * Math.max(0, Math.min(1, v / gauge.maxShown));
+  $("g-band").setAttribute("d", arc(ang(gauge.pideal - 5), ang(gauge.pideal + 12)));
+  $("g-value").setAttribute("d", arc(150, ang(gauge.shown)));
+  const [mx, my] = pt(ang(gauge.shown), G.r);
+  $("g-marker").setAttribute("cx", mx.toFixed(1)); $("g-marker").setAttribute("cy", my.toFixed(1));
+  const ta = ang(gauge.pideal), [x0, y0] = pt(ta, G.r - 14), [x1, y1] = pt(ta, G.r + 14);
+  const tl = $("g-target");
+  tl.setAttribute("x1", x0.toFixed(1)); tl.setAttribute("y1", y0.toFixed(1)); tl.setAttribute("x2", x1.toFixed(1)); tl.setAttribute("y2", y1.toFixed(1));
+  $("g-num").textContent = Math.round(gauge.shown);
+  let ticks = "";
+  for (let v = 0; v <= gauge.maxShown + 0.1; v += 10) {
+    const a = ang(v), major = v % 50 === 0;
+    const [ax, ay] = pt(a, G.r - (major ? 22 : 17)), [bx, by] = pt(a, G.r - 12);
+    ticks += `<line class="tick${major ? " major" : ""}" x1="${ax.toFixed(1)}" y1="${ay.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}"/>`;
+  }
+  $("g-ticks").innerHTML = ticks;
+}
+function setGauge(pfront, pideal) {
+  const max = Math.ceil(Math.max(80, pideal * 1.6, pfront * 1.15) / 10) * 10;
+  if (pfront === gauge.target && max === gauge.max && pideal === gauge.pideal) return;
+  const from = gauge.shown, fromMax = gauge.maxShown, start = performance.now();
+  gauge.target = pfront; gauge.max = max; gauge.pideal = pideal;
+  cancelAnimationFrame(gauge.anim);
+  const step = (ts) => {
+    const k = Math.min(1, (ts - start) / 300), e = 1 - Math.pow(1 - k, 3);
+    gauge.shown = from + (pfront - from) * e;
+    gauge.maxShown = fromMax + (max - fromMax) * e;
+    drawGauge();
+    if (k < 1) gauge.anim = requestAnimationFrame(step);
+  };
+  gauge.anim = requestAnimationFrame(step);
+}
+drawGauge();
+
+/* ---------- rendering ---------- */
+function schedule() { if (!scheduled) { scheduled = true; requestAnimationFrame(render); } }
+const sigEls = [...document.querySelectorAll("[data-sig]")];
+
+function render() {
+  scheduled = false;
+  renderHeader();
+  if (S.tab === "overview") renderOverview();
+  if (S.tab === "errors" && errorsDirty) { renderErrors(); errorsDirty = false; }
+  if (S.tab === "registers") renderRegisters();
+  const n = S.active.length;
+  $("badge").hidden = n === 0;
+  $("badge").textContent = n;
+}
+
+function renderHeader() {
+  const st = S.status;
+  const busy = st.state === "opening" || st.state === "waiting" || st.state === "retry";
+  const pill = $("pill");
+  const color = st.state === "on" ? "var(--ok)" : busy ? "var(--amber)" : st.problem ? "var(--bad)" : "var(--muted)";
+  pill.style.setProperty("--pc", color);
+  pill.classList.toggle("busy", busy);
+  $("pill-text").textContent = st.state === "on" ? (st.rt ? st.rt + " ms" : t("state_connected"))
+    : busy ? t(st.state === "retry" ? "state_reconnecting" : "state_connecting") : t("state_disconnected");
+  $("subtitle").textContent = st.state === "on" && st.plcName ? `${st.plcName} · ${st.linkName}` : t("app_subtitle");
+}
+
+function renderOverview() {
+  const st = S.status, f = S.front || { signals: {}, pfront: 0, pideal: 0, complete: false, pressureInRange: true, expectedPideal: null, lights: "off", coupling: "none", key: "neutral", heater: "off", door: "closed", leftBolt: "unknown", rightBolt: "unknown" };
+  const live = st.state === "on";
+  $("page-overview").classList.toggle("dim", !live);
+
+  // connection card
+  $("connect-card").hidden = live;
+  if (!live) {
+    const busy = st.state !== "off";
+    const key = busy + "|" + st.state + "|" + st.problem + "|" + st.detail + "|" + lang() + "|" + S.blocked;
+    if (key !== renderOverview.connKey) {
+      renderOverview.connKey = key;
+      let html = "";
+      if (busy) {
+        html = `<b>${esc(t(st.state === "retry" ? "state_reconnecting_long" : "state_connecting_long", st.linkName))}</b><div class="progress"></div><div class="btns"><button class="btn" data-act="stop">${t("action_cancel")}</button></div>`;
+      } else {
+        const problem = problemText(st);
+        const can = !!(navigator.serial || navigator.usb);
+        // on a phone "Connect" opens Chrome's USB list straight away (WebUSB); on a PC the choice of port
+        const direct = isAndroid && navigator.usb;
+        const hint = !can ? t("no_usb") : S.blocked ? t("usb_blocked") : !window.isSecureContext ? t("usb_https") : t(direct ? "hint_cable_android" : "hint_cable");
+        html = `<b style="font-size:17px">${t("state_disconnected_title")}</b>${problem ? `<span class="problem">${esc(problem)}</span>` : ""}
+          <span class="muted">${hint}</span>
+          <div class="btns">${can ? `<button class="btn primary" data-act="${direct ? "usb" : "sheet"}">${t("action_connect")}</button>` : ""}${direct ? `<button class="btn" data-act="sheet">${t("action_choose")}</button>` : ""}<button class="btn" data-act="demo">${t("action_demo")}</button>${installEvent ? `<button class="btn" data-act="install">${t("install_app")}</button>` : ""}</div>`;
+      }
+      $("connect-body").innerHTML = `<div style="display:flex;flex-direction:column;gap:12px">${html}</div>`;
+    }
+  }
+
+  // active errors banner
+  $("banner").hidden = S.active.length === 0;
+  if (S.active.length && renderOverview.bannerKey !== S.activeKey + lang()) {
+    renderOverview.bannerKey = S.activeKey + lang();
+    $("banner-title").textContent = t("active_errors_count", S.active.length);
+    $("banner-list").innerHTML = S.active.map((e) => `<button class="erow" data-err="${e.code}"><span class="code">${e.code}</span><span><span class="t">${esc(errorTitle(e.code))}</span>${errorDetail(e.code, e.args) ? `<span class="d" style="display:block">${esc(errorDetail(e.code, e.args))}</span>` : ""}</span></button>`).join("");
+  }
+
+  for (const el of sigEls) el.classList.toggle("on", f.signals[el.dataset.sig] === true);
+
+  // pressure
+  setGauge(f.pfront, f.pideal);
+  $("gauge").classList.toggle("out", !f.pressureInRange);
+  const ps = $("p-state");
+  ps.textContent = !f.complete ? t("no_data") : t(f.pressureInRange ? "pressure_in_range" : "pressure_out_of_range");
+  ps.style.color = !f.complete ? "var(--muted)" : f.pressureInRange ? "var(--ok)" : "var(--amber)";
+  $("m-pideal").textContent = f.complete ? f.pideal + " mbar" : "—";
+  $("m-sheet").textContent = f.expectedPideal === null ? "—" : f.expectedPideal + " mbar";
+  $("m-sheet").classList.toggle("bad", f.expectedPideal !== null && f.expectedPideal !== f.pideal);
+
+  // door
+  $("door-state").textContent = t("door_" + f.door);
+  $("door-state").style.color = f.door === "half" ? "var(--amber)" : "var(--text)";
+  const leaf = $("door-leaf");
+  leaf.classList.toggle("inflate", !!f.signals.INFSEAL);
+  leaf.classList.toggle("deflate", !f.signals.INFSEAL && !!f.signals.DEFSEAL);
+  leaf.classList.toggle("pushed", f.door === "pushed");
+  $("door-diaph").classList.toggle("on", !!f.signals.DIAPH);
+  $("bolt-left").setAttribute("class", "bolt left " + f.leftBolt);
+  $("bolt-right").setAttribute("class", "bolt right " + f.rightBolt);
+
+  // lights
+  const ls = $("lights-state");
+  ls.textContent = t("lights_" + f.lights);
+  ls.style.color = { off: "var(--muted)", twoRed: "var(--lamp-red)", invalid: "var(--bad)" }[f.lights] || "var(--text)";
+
+  // coupling, key, heating
+  seg("seg-coupling", f.coupling);
+  $("coupling-state").textContent = f.coupling === "none" ? t("coupling_none") : "";
+  seg("seg-key", f.key);
+  $("key-present").textContent = f.signals.KEYACT ? t("key_present") : t("key_absent");
+  seg("seg-heater", f.heater);
+  $("lowtemp").hidden = !f.signals.LOWTEMP;
+
+  // status lamps burn when the "No … fault" bit is 0
+  for (const s of LAMPS) {
+    const fault = f.complete && f.signals[s] !== true;
+    document.querySelector(`[data-fault="${s}"]`).classList.toggle("fault", fault);
+    document.querySelector(`[data-lamp="${s}"]`).classList.toggle("on", fault);
+  }
+}
+function seg(id, value) {
+  for (const el of $(id).children) el.classList.toggle("active", el.dataset.v === value);
+}
+
+function renderErrors() {
+  const ended = S.history.filter((e) => e.clearedAt !== null);
+  let html = `<h2 class="label">${t("errors_active")}</h2>`;
+  html += S.active.length ? S.active.map((e) => ecard(e.code, e.args, t("since_time", timeStr(e.since)), true)).join("")
+    : `<div class="ok-box"><svg viewBox="0 0 24 24" width="24" height="24" fill="var(--ok)"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-2 15-5-5 1.4-1.4L10 14.2l7.6-7.6L19 8l-9 9z"/></svg><span>${t("errors_none")}</span></div>`;
+  html += `<div class="head"><h2 class="label">${t("errors_history")}</h2>${ended.length ? `<button class="textbtn" data-act="clear-history">${t("action_clear")}</button>` : ""}</div>`;
+  html += ended.length ? ended.map((e) => ecard(e.code, e.args, `${timeStr(e.raisedAt)} – ${timeStr(e.clearedAt)}`, false)).join("") : `<span class="muted" style="padding:4px">${t("errors_history_empty")}</span>`;
+  html += `<h2 class="label">${t("errors_catalog")}</h2>` + ERROR_CODES.map((c) => `<button class="cat" data-err="${c}"><b>${c}</b><span>${esc(errorTitle(c))}</span></button>`).join("");
+  $("errors-list").innerHTML = html;
+}
+function ecard(code, args, time, active) {
+  const d = errorDetail(code, args);
+  return `<button class="ecard${active ? " active" : ""}" data-err="${code}"><span class="code">${code}</span><span><b style="font-weight:500">${esc(errorTitle(code))}</b>${d ? `<small>${esc(d)}</small>` : ""}<small>${esc(time)}</small></span></button>`;
+}
+
+function renderRegisters() {
+  const st = S.status, on = st.state === "on";
+  $("r-rt").textContent = on ? st.rt + " ms" : "—";
+  $("r-fps").textContent = on ? st.fps : "—";
+  $("r-plc").textContent = st.plcName || "—";
+  const u = S.usbInfo;
+  $("usb-card").hidden = !u;
+  if (u) {
+    $("usb-name").textContent = [u.maker, u.product].filter(Boolean).join(" ");
+    $("usb-type").textContent = u.type === "?" ? "—" : "PL2303 " + u.type;
+    $("usb-ids").textContent = u.vidPid;
+    $("usb-rev").textContent = u.bcdDevice + " / USB " + u.bcdUsb;
+    $("usb-bytes").textContent = u.rxBytes + " / " + u.txBytes;
+    const steps = u.steps.map(esc).join("<br>");
+    if ($("usb-steps").innerHTML !== steps) $("usb-steps").innerHTML = steps;
+  }
+  const regs = (S.front && S.front.registers) || {};
+  for (const r of RM.pollOrder) {
+    const v = regs[r];
+    $("rv-" + r).textContent = v === undefined ? "—" : RM.analog.has(r) ? v + " mbar" : `${v}  ·  ${v.toString(2).padStart(8, "0")}`;
+    if (RM.bits[r]) RM.bits[r].forEach((n, i) => $(`rb-${r}-${i}`).classList.toggle("on", v !== undefined && RM.isSet(v, i)));
+  }
+  if (termDirty) {
+    termDirty = false;
+    $("term-out").hidden = S.terminal.length === 0;
+    $("term-clear").hidden = S.terminal.length === 0;
+    $("term-out").innerHTML = S.terminal.slice(-40).reverse().map((l) => `<div class="${l.out ? "o" : ""}">${l.out ? "→" : "←"} ${esc(l.text)}</div>`).join("");
+  }
+}
+
+/* ---------- sheets ---------- */
+function openSheet(html) {
+  $("overlay").innerHTML = `<div class="scrim" data-act="close-sheet"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
+}
+function closeSheet() { $("overlay").innerHTML = ""; }
+async function connectionSheet() {
+  const st = S.status;
+  let html = `<h2>${t("card_connection")}</h2>`;
+  if (st.state !== "off") {
+    html += `<span class="muted">${esc(st.state === "on" ? t("connected_to", st.plcName || "PLC", st.linkName) : t("state_connecting_long", st.linkName))}</span><button class="btn danger" data-act="stop">${t("action_disconnect")}</button>`;
+  }
+  const known = await knownPorts();
+  known.forEach((p, i) => {
+    html += `<button class="port${p.kit ? " kit" : ""}" data-known="${i}"><div><b>${esc(t("port_known"))}</b><small>${esc(p.kind === "usb" ? (p.port.productName || "Prolific PL2303") + " · WebUSB" : "Web Serial")}${p.kit ? " · " + t("port_kit_cable") : ""}</small></div>▶</button>`;
+  });
+  const serialBtn = `<button class="port" data-act="serial" ${navigator.serial ? "" : "disabled"}><div><b>${t("port_serial")}</b><small>${t("port_serial_sub")}</small></div>▶</button>`;
+  const usbBtn = `<button class="port${isAndroid ? " kit" : ""}" data-act="usb" ${navigator.usb ? "" : "disabled"}><div><b>${t("port_usb")}${isAndroid ? ` · ${t("recommended")}` : ""}</b><small>${t("port_usb_sub")}</small></div>▶</button>`;
+  html += isAndroid ? usbBtn + serialBtn : serialBtn + usbBtn;
+  if (navigator.usb) html += `<button class="port" data-act="usb-any"><div><b>${t("port_usb_any")}</b><small>${t("port_usb_any_sub")}</small></div>▶</button>`;
+  html += `<button class="port" data-act="demo"><div><b>${t("demo_title")}</b><small>${t("demo_subtitle")}</small></div>▶</button>`;
+  if (!navigator.serial && !navigator.usb) html += `<span class="muted">${t("no_usb")}</span>`;
+  else if (S.blocked) html += `<span class="muted">${t("usb_blocked")}</span>`;
+  openSheet(html);
+  connectionSheet.known = known;
+}
+function errorSheet(code) {
+  const active = S.active.find((e) => e.code === code);
+  const group = explanation(Math.floor(code / 10) * 10).split("\n")[0];
+  const detail = active ? (errorDetail(code, active.args) || t("error_active_now")) : "";
+  openSheet(`<div class="row"><span style="font-size:40px;font-weight:700;color:${active ? "var(--bad)" : "var(--amber)"}">${code}</span><div>${group ? `<small class="muted">${esc(group)}</small>` : ""}<h2 style="font-size:17px">${esc(errorTitle(code))}</h2></div></div>
+    ${active ? `<div class="ok-box" style="background:color-mix(in srgb,var(--bad) 12%,transparent)">${esc(detail)}</div>` : ""}
+    <div class="explain">${esc(explanation(code) || t("error_no_explanation"))}</div>
+    <div><button class="btn" data-act="close-sheet">${t("close")}</button></div>`);
+}
+
+let snackTimer = null;
+function snack(text) {
+  const el = $("snack");
+  el.textContent = text;
+  el.hidden = false;
+  clearTimeout(snackTimer);
+  snackTimer = setTimeout(() => { el.hidden = true; }, 4000);
+}
+
+/* ---------- language + settings page ---------- */
+let applyLanguage = function () {
+  document.documentElement.lang = lang();
+  for (const el of document.querySelectorAll("[data-t]")) el.textContent = t(el.dataset.t);
+  for (const b of $("langs").children) b.classList.toggle("active", b.dataset.l === S.settings.lang);
+  $("support").textContent = t("support", navigator.serial ? t("yes") : t("no"), navigator.usb ? t("yes") : t("no"));
+  renderOverview.connKey = null;
+  errorsDirty = true;
+  termDirty = true;
+  renderSettings();
+  schedule();
+}
+function renderSettings() {
+  const s = S.settings;
+  $("s-auto").checked = s.autoConnect;
+  $("s-notify").checked = s.notify;
+  $("s-screen").checked = s.keepScreenOn;
+  $("s-timeout").value = s.plcTimeoutS; $("s-timeout-v").textContent = s.plcTimeoutS + " s";
+  $("s-pressure").value = s.pressureTimeoutS; $("s-pressure-v").textContent = s.pressureTimeoutS + " s";
+  $("s-delay").value = s.errorDelayS; $("s-delay-v").textContent = s.errorDelayS.toLocaleString(lang()) + " s";
+}
+function setSetting(key, value) {
+  S.settings[key] = value;
+  saveSettings();
+  applySettings();
+  renderSettings();
+  updateWakeLock();
+}
+[["s-auto", "autoConnect"], ["s-notify", "notify"], ["s-screen", "keepScreenOn"]].forEach(([id, key]) => {
+  $(id).addEventListener("change", (e) => setSetting(key, e.target.checked));
+});
+[["s-timeout", "plcTimeoutS"], ["s-pressure", "pressureTimeoutS"], ["s-delay", "errorDelayS"]].forEach(([id, key]) => {
+  $(id).addEventListener("input", (e) => { $(id + "-v").textContent = (+e.target.value).toLocaleString(lang()) + " s"; });
+  $(id).addEventListener("change", (e) => setSetting(key, +e.target.value));
+});
+$("langs").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  S.settings.lang = b.dataset.l;
+  saveSettings();
+  applyLanguage();
+});
+$("s-reset").addEventListener("click", () => { S.settings = { ...DEFAULTS, lang: S.settings.lang }; saveSettings(); applySettings(); applyLanguage(); });
+
+/* ---------- events ---------- */
+function showTab(tab) {
+  S.tab = tab;
+  for (const b of document.querySelectorAll("nav.tabs button")) {
+    if (b.dataset.tab === tab) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+  }
+  for (const p of document.querySelectorAll(".page")) p.hidden = p.id !== "page-" + tab;
+  errorsDirty = true;
+  termDirty = true;
+  renderOverview.connKey = null;
+  try { localStorage.setItem("fsd-tab", tab); } catch (_) { /* ignore */ }
+  window.scrollTo(0, 0);
+  render();
+}
+document.querySelector("nav.tabs").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-tab]");
+  if (b) showTab(b.dataset.tab);
+});
+$("pill").addEventListener("click", connectionSheet);
+$("banner-all").addEventListener("click", () => showTab("errors"));
+
+document.addEventListener("click", (e) => {
+  const err = e.target.closest("[data-err]");
+  if (err) { errorSheet(+err.dataset.err); return; }
+  const known = e.target.closest("[data-known]");
+  if (known) {
+    const p = connectionSheet.known[+known.dataset.known];
+    closeSheet();
+    if (p.kind === "serial") startSerial(p.port); else startUsb(p.port);
+    return;
+  }
+  const quick = e.target.closest("[data-cmd]");
+  if (quick) { conn.send(quick.dataset.cmd); return; }
+  const act = e.target.closest("[data-act]");
+  if (!act) return;
+  switch (act.dataset.act) {
+    case "close-sheet": if (e.target === act || act.tagName === "BUTTON") closeSheet(); break;
+    case "sheet": connectionSheet(); break;
+    case "demo": closeSheet(); startDemo(); break;
+    case "serial": closeSheet(); startSerial(); break;
+    case "usb": closeSheet(); startUsb(); break;
+    case "usb-any": closeSheet(); startUsb(null, true); break;
+    case "stop": closeSheet(); stop(); break;
+    case "install": install(); break;
+    case "clear-history": diag.clearHistory(); S.history = diag.events(); errorsDirty = true; schedule(); break;
+  }
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
+$("term-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = $("term-input");
+  if (input.value.trim()) conn.send(input.value);
+  input.value = "";
+});
+$("term-clear").addEventListener("click", () => { S.terminal = []; termDirty = true; schedule(); });
+
+/* ---------- start ---------- */
+applyLanguage();
+let startTab = "overview";
+try { startTab = localStorage.getItem("fsd-tab") || "overview"; } catch (_) { /* ignore */ }
+const hashTab = location.hash.replace("#", "");
+if (["overview", "errors", "registers", "settings"].includes(hashTab)) startTab = hashTab;
+/* ---------- installable app (PWA) ---------- */
+let installEvent = null;
+const standalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+function renderInstall() {
+  $("install-card").hidden = !(installEvent || standalone());
+  $("s-install").hidden = !installEvent;
+  $("install-state").textContent = standalone() ? t("install_running") : t("install_hint");
+  renderOverview.connKey = null;
+  schedule();
+}
+async function install() {
+  if (!installEvent) return;
+  const e = installEvent;
+  installEvent = null;
+  try { await e.prompt(); await e.userChoice; } catch (_) { /* dismissed */ }
+  renderInstall();
+}
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installEvent = e; renderInstall(); });
+window.addEventListener("appinstalled", () => { installEvent = null; snack(t("install_done")); renderInstall(); });
+$("s-install").addEventListener("click", install);
+const origApplyLanguage = applyLanguage;
+applyLanguage = function () { origApplyLanguage(); renderInstall(); };
+renderInstall();
+
+// offline cache + "new version" message; only on the hosted app (it has a manifest)
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel="manifest"]')) {
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register("sw.js").then((reg) => {
+    reg.addEventListener("updatefound", () => {
+      const worker = reg.installing;
+      if (worker) worker.addEventListener("statechange", () => { if (worker.state === "activated" && hadController) snack(t("update_ready")); });
+    });
+  }).catch(() => { /* no offline cache */ });
+}
+
+// app shortcuts (#demo, #errors) also work while the app is already open
+window.addEventListener("hashchange", () => {
+  const h = location.hash.replace("#", "");
+  if (h === "demo") { showTab("overview"); if (S.status.state === "off") startDemo(); }
+  else if (["overview", "errors", "registers", "settings"].includes(h)) showTab(h);
+});
+
+showTab(startTab);
+autoConnect();
+if (location.hash === "#demo") startDemo();
+window.fsdSelfTest = fsdSelfTest;
+</script>

@@ -1,0 +1,24 @@
+--ENG--
+Error 21:
+The left front light is broken.
+This error can occur when:
+• The left front light is broken.
+• The connection to the left front light is broken
+• LFTWHT is read incorrect (train sensor or PLC fault).
+• RHTWHT is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 21:
+Het linker voorlicht is kapot.
+Deze fout kan optreden wanneer:
+• Het linker voorlicht kapot is.
+• het contact met het linker voorlicht is onderbroken.
+• LFTWHT wordt onjuist uitgelezen (treinsensor of PLC-fout).
+• RHTWHT wordt onjuist uitgelezen (treinsensor of PLC-fout).
+--FR--
+Erreur 21:
+Le phare avant gauche est cassé.
+Cette erreur peut se produire lorsque:
+• Le phare avant gauche est défectueux.
+• La connexion avec le phare avant gauche est interrompue.
+• LFTWHT est lu incorrect (défaut du capteur de train ou PLC).
+• RHTWHT est lu incorrect (défaut du capteur de train ou PLC).

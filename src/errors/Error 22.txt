@@ -1,0 +1,24 @@
+--ENG--
+Error 22:
+The right front light is broken.
+This error can occur when:
+• The right front light is broken.
+• The connection to the right front light is broken
+• RHTWHT is read incorrect (train sensor or PLC fault).
+• LFTWHT is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 22:
+Het rechter voorlicht is kapot.
+Deze fout kan optreden wanneer:
+• Het rechter voorlicht kapot is.
+• het contact met het rechter voorlicht is onderbroken.
+• RHTWHT wordt onjuist uitgelezen (treinsensor of PLC-fout).
+• LFTWHT wordt onjuist uitgelezen (treinsensor of PLC-fout).
+--FR--
+Erreur 22:
+Le phare avant droit est cassé.
+Cette erreur peut se produire lorsque:
+• Le phare avant droit est défectueux.
+• La connexion avec le phare avant droit est interrompue
+• RHTWHT est lu incorrect (défaut du capteur de train ou PLC).
+• LFTWHT est lu incorrect (défaut du capteur de train ou PLC).

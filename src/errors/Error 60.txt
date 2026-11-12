@@ -1,0 +1,6 @@
+--ENG--
+These are errors related to the key slot for opening or closing the front door.
+--NL--
+Dit zijn fouten die verband houden met het sleutelgat voor het openen of sluiten van de voordeur.
+--FR--
+Ce sont des erreurs liées à la fente de la clé pour ouvrir ou fermer la porte d'entrée.

@@ -1,0 +1,21 @@
+--ENG--
+Error 61:
+The PLC detect your key in in the closing or opening positioning without detecting the key. This is related to a sensor in the keyhole that is possibly malfunctioning.
+This error can occur when:
+• Keyact is read incorrect (train sensor or PLC fault).
+• Closed is read incorrect (train sensor or PLC fault).
+• Opening is read incorrect (train sensor or PLC fault).
+--NL--
+Fout 61:
+De PLC detecteert dat de sluitings- of openingspositie geactiveerd word zonder dat een sleutel te detecteren. Dit heeft te maken met een sensor in het sleutelgat die mogelijk niet goed werkt.
+Deze fout kan optreden wanneer:
+• Keyact wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• Gesloten wordt verkeerd uitgelezen (treinsensor of PLC storing).
+• Opening wordt verkeerd uitgelezen (treinsensor of PLC storing).
+--FR--
+Erreur 61:
+L'automate détecte votre clé en position de fermeture ou d'ouverture sans détecter la clé. Ceci est lié à un capteur dans le trou de la serrure qui fonctionne peut-être mal.
+Cette erreur peut se produire lorsque:
+• Keyact est lu incorrect (défaut du capteur de train ou PLC).
+• Fermé est lu incorrect (défaut du capteur de train ou PLC).
+• L'ouverture est lu incorrect (défaut du capteur de train ou PLC).

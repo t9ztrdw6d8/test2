@@ -1,0 +1,36 @@
+--ENG--
+Error 11:
+Pideal is a predetermined value that is based on the current connection state of the train. The train will inflate or deflate the rubber front to reach this value as close as possible. This error occurs when the value Pideal that the PLC sends does not match the expected Pideal of the datasheet.
+The following values are given in the datasheet:
+• Front of train -> Pideal = 50mbar
+• Train connected -> Pideal = 20mbar 
+• End of train -> Pideal = 20mbar 
+• Park -> Pideal = 10mbar
+
+This error can occur when:
+• The connection state of the train is wrong (this can be a train or PLC fault)
+• The PLC returns the wrong Pideal value (this is a PLC fault)
+--NL--
+Fout 11:
+Pideal is een vooraf bepaalde waarde die is gebaseerd op de huidige koppelstatus van de trein. De trein zal het rubberen front opblazen of laten leeglopen om naar deze waarde te streven. Deze fout treedt op wanneer de waarde Pideal die de PLC stuurt niet overeenkomt met de verwachte Pideal van de datasheet. 
+De volgende waarden staan in de datasheet:
+• Voorkant trein -> Pideal = 50mbar
+• Trein aangesloten -> Pideal = 20mbar
+• Einde trein -> Pideal = 20mbar
+• Parkeren ->  Pideal = 10mbar
+
+Deze fout kan optreden wanneer:
+• De koppelstatus van de trein verkeerd is (dit kan een trein- of PLC-fout zijn)
+• De PLC geeft de verkeerde Pideal-waarde terug (dit is een PLC-fout)
+--FR--
+Erreur 11:
+Pideal est une valeur prédéterminée basée sur l'état de couplage actuel du train. Le train va gonfler ou dégonfler le caoutchouc avant pour obtenire cette valeur. Cette erreur se produit lorsque la valeur Pideal envoyée par l'automate ne correspond avec à la valeur expecte Pideal de la fiche technique.
+Les valeurs suivantes sont dans la fiche technique:
+• Avant de train -> Pideal = 50mbar
+• Train connecté -> Pideal = 20mbar
+• Fin de train -> Pideal = 20mbar
+• Stationnement -> Pideal = 10 mbar
+
+Cette erreur peut se reproduire lorsque:
+• L'état de couplage du train est incorrect (il peut s'agir d'une erreur PLC)
+• L'automate renvoie la mauvaise valeur Pideal (il s'agit d'une erreur PLC)
